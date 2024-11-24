@@ -13,3 +13,33 @@ A simple add-on that automatically discards the lowest-value item in your bags, 
   * Vendor-quality white items with an item level at least 10 levels lower than your character.
   * Generic consumable items with a use level at least 10 levels lower than your character.
   * Gray vendor items.
+
+## Download
+
+You can find this on Curseforge.
+
+https://www.curseforge.com/wow/addons/magic-eraser
+
+## Report Issues & Get Involved
+
+You can find this project on GitHub.
+
+https://github.com/Gogo1951/MagicEraser
+
+Gogo1951 on Discord.
+
+## Testing Notes
+
+🟢 Classic Era
+
+🟢 Classic Hardcore
+
+🟢 Classic Anniversary
+
+🟡 Season of Discovery
+
+🔴 Cataclysm Classic
+
+🔴 Retail
+
+Please reach out if you would like to be involved with testing!
