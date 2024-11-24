@@ -1,9 +1,9 @@
 ## Title: Magic Eraser
-## Notes: A simple add-on that will throw out the lowest value item in your bags, including completed quest items, grays, and vendor-white items.
+## Notes: A simple add-on that automatically discards the lowest-value item in your bags, including completed quest items, gray items, and vendor-quality white items.
 ## Author: Gogo#0298
 ## Version: @project-version@
 
-## X-Curse-Project-ID: 
+## X-Curse-Project-ID: 1146812
 
 ## Interface: 110005, 40401, 11505
 
