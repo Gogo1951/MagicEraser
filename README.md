@@ -4,7 +4,7 @@ A simple add-on that automatically discards the lowest-value item in your bags, 
 
 ## How It Works
 
-⚠️ **Magic Eraser** acts decisively—it deletes first and asks questions later. Every time you use /MagicEraser, there is no "Are you sure?" step. (A proper UI is in the works, but I wanted to release this while players are still leveling in the Anniversary Edition. Ideally this will find its way into Questie. https://github.com/Questie/Questie/issues/6481)
+⚠️ **Magic Eraser** acts decisively—it deletes first and asks questions later. Every time you use the `/MagicEraser` slash-command, something will get deleted -- there is no "Are you sure?" step. (A proper UI is in the works, but I wanted to release this while players are still leveling in the Anniversary Edition. Ideally this will find its way into Questie. https://github.com/Questie/Questie/issues/6481)
 
 * Everything deleted comes from a manually curated, multiple-human-reviewed, approved trash list.
 * From there, Magic Eraser scans all items in your bags and identifies the lowest-value item to delete.
