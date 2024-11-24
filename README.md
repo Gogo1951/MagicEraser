@@ -1,6 +1,6 @@
 # Magic Eraser
 
-A simple add-on that discards the lowest-value item in your bags including completed quest items, gray items, and vendor-quality white items -- when you run the `/MagicEraser` slash-command.
+A simple add-on that discards the lowest-value item in your bags -- including completed quest items, gray items, and vendor-quality white items -- when you run the `/MagicEraser` slash-command.
 
 <img width="416" alt="image" src="https://github.com/user-attachments/assets/2bd97603-58ce-4c8f-ba5e-2fc39012cceb">
 
