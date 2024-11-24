@@ -872,6 +872,7 @@ local AllowedDeleteQuestItems = {
     [1361] = {139}, -- Another Clue to Sander's Treasure
     [1362] = {140}, -- Final Clue to Sander's Treasure
     [14544] = {5727},
+    [16784] = {6563}, -- Sapphire of Aku'Mai
     [16991] = {6624, 6622}, -- Triage Bandage
     [17761] = {7067}, -- Gem of the First Khan
     [17762] = {7067}, -- Gem of the Second Khan
@@ -894,6 +895,7 @@ local AllowedDeleteQuestItems = {
     [5165] = {905},
     [5251] = {944}, -- Phial of Scrying
     [5505] = {1023}, -- Teronis' Journal
+    [5570] = {1069}, -- Deepmoss Egg
     [5884] = {1206}, -- Unpopped Darkmist Eye
     [6842] = {1701}, -- Furen's Instructions
     [6929] = {1712}, -- Bath'rah's Parchment
@@ -907,7 +909,7 @@ local AllowedDeleteQuestItems = {
     [8047] = {17, 2202}, -- Magenta Fungus Cap
     [9279] = {2930}, -- White Punch Card
     [9309] = {2928}, -- Robo-mechanical Guts
-    [9326] = {2945} -- Grime-Encrusted Ring
+    [9326] = {2945}, -- Grime-Encrusted Ring
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
 }
