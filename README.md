@@ -4,11 +4,11 @@ A simple add-on that automatically discards the lowest-value item in your bags, 
 
 ## How It Works
 
-⚠️ **Magic Eraser** acts decisively—it deletes first and asks questions later. Every time you use the `/MagicEraser` slash-command, something will get deleted -- there is no "Are you sure?" step. 
+⚠️ **Magic Eraser** acts decisively -- there is no "Are you sure?" step. Every time you use the `/MagicEraser` slash-command your bags will get a bit cleaner.
 
-* Everything deleted comes from a manually curated, multiple-human-reviewed, approved trash list.
-* From there, Magic Eraser scans all items in your bags and identifies the lowest-value item to delete.
-* It prioritizes the following:
+* Everything erased comes from a manually curated, multiple-human-reviewed, approved trash list.
+* From there, Magic Eraser scans all items in your bags and identifies the lowest-value item to erase.
+* It looks at the following:
   * Completed Quest Items and "Provided For" items that linger in your bag indefinitely.
   * Vendor-quality white items with an item level at least 10 levels lower than your character.
   * Generic consumable items with a use level at least 10 levels lower than your character.
