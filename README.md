@@ -1,4 +1,4 @@
-# MagicEraser
+# Magic Eraser
 
 A simple add-on that automatically discards the lowest-value item in your bags, including completed quest items, gray items, and vendor-quality white items.
 
