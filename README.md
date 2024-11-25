@@ -6,9 +6,13 @@ A simple add-on that discards the lowest-value item in your bags -- including co
 
 Examples:
 
-> Magic Eraser : Erasing [Sapphire of Aku'Mai]! This item was associated with a quest you have completed.
+> Magic Eraser : Erasing \[Sapphire of Aku'Mai\]! This item was associated with a quest you have completed.
 
-> Magic Eraser : Erasing 4x [Tel'Abim Banana] - worth 24c.
+> Magic Eraser : Erasing 1x \[Cracked Egg Shells\] - worth 4c. (Gray Item)
+
+> Magic Eraser : Erasing 4x \[Tel'Abim Banana\] - worth 24c. (Low-Level Consumable Item)
+
+> Magic Eraser : Erasing 1x \[Ancestral Gloves\] - worth 48c. (White Vendor-Quality Item)
 
 > Magic Eraser : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space.
 
