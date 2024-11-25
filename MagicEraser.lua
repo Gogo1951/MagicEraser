@@ -910,6 +910,8 @@ local AllowedDeleteQuestItems = {
     [9279] = {2930}, -- White Punch Card
     [9309] = {2928}, -- Robo-mechanical Guts
     [9326] = {2945}, -- Grime-Encrusted Ring
+   	[3499] = {498},	-- Burnished Gold Key
+	[3467] = {498}, -- Dull Iron Key
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
 }
