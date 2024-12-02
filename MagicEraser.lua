@@ -1011,7 +1011,7 @@ local function DeleteLowValue()
             -- If the item is worth at least 1 gold
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s - worth %d|cffffd700g|r %d|cffc0c0c0s|r %d|cffcd7f32c|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffffd700g|r %d|cffc0c0c0s|r %d|cffcd7f32c)|r.",
                     lowestStackCount,
                     lowestItemLink,
                     gold,
@@ -1023,7 +1023,7 @@ local function DeleteLowValue()
             -- If the item is worth less than 1 gold but at least 1 silver
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s - worth %d|cffc0c0c0s|r %d|cffcd7f32c|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffc0c0c0s|r %d|cffcd7f32c)|r.",
                     lowestStackCount,
                     lowestItemLink,
                     silver,
@@ -1034,7 +1034,7 @@ local function DeleteLowValue()
             -- If the item is worth only copper (less than 1 silver)
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s - worth %d|cffcd7f32c|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffcd7f32c)|r.",
                     lowestStackCount,
                     lowestItemLink,
                     copper
