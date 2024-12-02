@@ -857,6 +857,8 @@ local AllowedDeleteItems = {
 -- Allow Magic Eraser to Delete these quest items if their associated quests are completed.
 local AllowedDeleteQuestItems = {
     -- Example: [ItemID]     = {QuestID1, QuestID2, ...}
+    [3467] = {498}, -- Dull Iron Key
+    [3499] = {498}, -- Burnished Gold Key
     [10515] = {3463}, -- Torch of Retribution
     [10575] = {4022, 4023}, -- Black Dragonflight Molt
     [11468] = {4286}, -- Dark Iron Fanny Pack
@@ -891,6 +893,8 @@ local AllowedDeleteQuestItems = {
     [4843] = {717}, -- Amethyst Runestone
     [4844] = {717}, -- Opal Runestone
     [4845] = {717}, -- Diamond Runestone
+    [5058] = {868}, -- Silithid Egg
+    [5085] = {899}, -- Bristleback Quilboar Tusk
     [5088] = {894},
     [5165] = {905},
     [5251] = {944}, -- Phial of Scrying
@@ -910,8 +914,6 @@ local AllowedDeleteQuestItems = {
     [9279] = {2930}, -- White Punch Card
     [9309] = {2928}, -- Robo-mechanical Guts
     [9326] = {2945}, -- Grime-Encrusted Ring
-   	[3499] = {498},	-- Burnished Gold Key
-	[3467] = {498}, -- Dull Iron Key
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
 }
