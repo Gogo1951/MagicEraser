@@ -1,6 +1,5 @@
--- Allow Magic Eraser to Delete these items.
-local AllowedDeleteItems = {
-    -- Trash Consumables
+-- Allow Magic Eraser to delete these consumables
+local AllowedDeleteConsumables = {
     -- https://www.wowhead.com/classic/items/consumables/food-and-drinks?filter=82:2:92;4:2:1;11400:0:0#0+1+20
     [8932] = true, -- Alterac Swiss
     [16166] = true, -- Bean Soup
@@ -91,8 +90,11 @@ local AllowedDeleteItems = {
     [9260] = true, -- Volatile Rum
     [3771] = true, -- Wild Hog Shank
     [16169] = true, -- Wild Ricecake
-    [22324] = true, -- Winter Kimchi
-    -- Trash White Equipment
+    [22324] = true -- Winter Kimchi
+}
+
+-- Allow Magic Eraser to delete these equipment items
+local AllowedDeleteEquipment = {
     -- https://www.wowhead.com/classic/items/quality:1/slot:16:5:8:10:1:23:7:21:2:22:13:15:26:28:14:3:25:17:6:9?filter=195%3A2%3A5%3A85%3A82%3B1%3A2%3A2%3A5%3A4%3B0%3A0%3A0%3A0%3A11400
     -- Filtered out things that were tools, or RP, or related to quests.
     -- https://www.wowhead.com/classic/items/quality:1/slot:16:5:8:10:1:23:7:21:2:22:13:15:26:28:14:3:25:17:6:9?filter=195%3A2%3A5%3A85%3A82%3B1%3A2%3A2%3A1%3A4%3B0%3A0%3A0%3A0%3A11400
@@ -851,10 +853,9 @@ local AllowedDeleteItems = {
     [2366] = true, -- Woven Pants
     [2364] = true, -- Woven Vest
     [2529] = true -- Zweihander
-    -- Add more item IDs as needed
 }
 
--- Allow Magic Eraser to Delete these quest items if their associated quests are completed.
+-- Allow Magic Eraser to delete these quest items if their associated quests are completed
 local AllowedDeleteQuestItems = {
     -- Example: [ItemID]     = {QuestID1, QuestID2, ...}
     [3467] = {498}, -- Dull Iron Key
@@ -913,7 +914,7 @@ local AllowedDeleteQuestItems = {
     [8047] = {17, 2202}, -- Magenta Fungus Cap
     [9279] = {2930}, -- White Punch Card
     [9309] = {2928}, -- Robo-mechanical Guts
-    [9326] = {2945}, -- Grime-Encrusted Ring
+    [9326] = {2945} -- Grime-Encrusted Ring
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
 }
@@ -928,76 +929,72 @@ local function IsAnyQuestCompleted(questIDs)
     return false
 end
 
--- Function to check if the item is a consumable and its use level is within the allowed range
+-- Function to check if the consumable's use level is valid
 local function IsConsumableAndLevelAllowed(itemID)
-    local useLevel = select(5, GetItemInfo(itemID)) -- Get the required level to use the item
+    local useLevel = select(5, GetItemInfo(itemID))
     if useLevel and useLevel > 0 then
         local playerLevel = UnitLevel("player")
         return (playerLevel - useLevel >= 10)
     end
-    return true -- If no use level is found, consider it allowed
+    return true
 end
 
--- Function to delete the lowest value gray item or specified deletable item (or stack) in the player's bag
-local function DeleteLowValue()
+-- Function to delete the lowest value item or specified deletable item
+local function MagicEraser()
     local lowestValue, lowestBag, lowestSlot = nil, nil, nil
     local lowestItemLink, lowestStackCount = nil, nil
 
-    -- First, try to find quest items for completed quests
+    -- First, delete quest items for completed quests
     for bag = 0, 4 do
         local numSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, numSlots do
             local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
-                -- Check if the item is a quest item and any of its associated quests are completed
                 if AllowedDeleteQuestItems[itemID] and IsAnyQuestCompleted(AllowedDeleteQuestItems[itemID]) then
                     C_Container.PickupContainerItem(bag, slot)
                     DeleteCursorItem()
-
                     print(
                         string.format(
                             "|cff00B0FFMagic Eraser|r : Erasing %s! This item was associated with a quest you have completed.",
                             itemInfo.hyperlink
                         )
                     )
-                    return -- Stop after deleting a quest item
+                    return
                 end
             end
         end
     end
 
-    -- If no quest items were found, fall back to deleting the lowest value gray or allowed item
+    -- Next, find the lowest value consumables or equipment
     for bag = 0, 4 do
         local numSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, numSlots do
             local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
             if itemInfo and itemInfo.hyperlink then
-                local itemLink = itemInfo.hyperlink
-                local stackCount = itemInfo.stackCount
                 local itemID = itemInfo.itemID
-                local _, _, itemRarity, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemLink)
+                local _, _, itemRarity, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemInfo.hyperlink)
 
-                -- Check if it's a gray item or in AllowedDeleteItems
-                if ((itemRarity == 0 and itemSellPrice > 0) or AllowedDeleteItems[itemID]) then
-                    -- If it's a consumable, check the player's level against the item's use level
-                    if not AllowedDeleteItems[itemID] or IsConsumableAndLevelAllowed(itemID) then
-                        local totalValue = itemSellPrice * stackCount -- Total value of the stack
-                        if not lowestValue or totalValue < lowestValue then
-                            lowestValue = totalValue
-                            lowestBag = bag
-                            lowestSlot = slot
-                            lowestItemLink = itemLink
-                            lowestStackCount = stackCount
-                        end
+                -- Check if the item is in AllowedDeleteConsumables or AllowedDeleteEquipment
+                if
+                    AllowedDeleteConsumables[itemID] and IsConsumableAndLevelAllowed(itemID) or
+                        AllowedDeleteEquipment[itemID]
+                 then
+                    local totalValue = itemSellPrice * itemInfo.stackCount
+                    if not lowestValue or totalValue < lowestValue then
+                        lowestValue = totalValue
+                        lowestBag = bag
+                        lowestSlot = slot
+                        lowestItemLink = itemInfo.hyperlink
+                        lowestStackCount = itemInfo.stackCount
                     end
                 end
             end
         end
     end
 
+    -- Delete the lowest value item if found
     if lowestBag and lowestSlot then
-        -- Delete the lowest value item or stack
         C_Container.PickupContainerItem(lowestBag, lowestSlot)
         DeleteCursorItem()
 
@@ -1008,10 +1005,9 @@ local function DeleteLowValue()
 
         -- Print the result with dynamic value formatting
         if gold > 0 then
-            -- If the item is worth at least 1 gold
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffffd700g|r %d|cffc0c0c0s|r %d|cffcd7f32c)|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s worth %d|cffffd700g|r %d|cffc0c0c0s|r %d|cffcd7f32c|r.",
                     lowestStackCount,
                     lowestItemLink,
                     gold,
@@ -1020,10 +1016,9 @@ local function DeleteLowValue()
                 )
             )
         elseif silver > 0 then
-            -- If the item is worth less than 1 gold but at least 1 silver
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffc0c0c0s|r %d|cffcd7f32c)|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s worth %d|cffc0c0c0s|r %d|cffcd7f32c|r.",
                     lowestStackCount,
                     lowestItemLink,
                     silver,
@@ -1031,10 +1026,9 @@ local function DeleteLowValue()
                 )
             )
         else
-            -- If the item is worth only copper (less than 1 silver)
             print(
                 string.format(
-                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s (%d|cffcd7f32c)|r.",
+                    "|cff00B0FFMagic Eraser|r : Erasing %dx %s worth %d|cffcd7f32c|r.",
                     lowestStackCount,
                     lowestItemLink,
                     copper
@@ -1048,6 +1042,6 @@ local function DeleteLowValue()
     end
 end
 
--- Slash command to run the function in-game
-SLASH_DELETELOWGRAY1 = "/MagicEraser"
-SlashCmdList["DELETELOWGRAY"] = DeleteLowValue
+-- Register slash command
+SLASH_MAGICERASER1 = "/MagicEraser"
+SlashCmdList["MAGICERASER"] = MagicEraser
