@@ -42,9 +42,9 @@ https://www.curseforge.com/wow/addons/magic-eraser
 
 🟢 Classic Hardcore
 
-🟢 Classic Anniversary
-
 🟡 Season of Discovery
+
+🟢 Classic Anniversary
 
 🔴 Cataclysm Classic
 
