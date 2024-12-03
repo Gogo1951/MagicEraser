@@ -1,3 +1,28 @@
+-- Track whether the welcome message has been sent
+local hasWelcomeMessageBeenSent = false
+
+-- Welcome message function
+local function SendWelcomeMessage()
+    local welcomeMessage = "|cff00B0FFMagic Eraser|r : Use /MagicEraser to remove one junk item from your bag. Magic Eraser is in beta -- please report any issues, thanks!"
+    print(welcomeMessage)
+end
+
+-- Register the event to trigger the message
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:SetScript(
+    "OnEvent",
+    function(self, event, isInitialLogin, isReloadingUi)
+        if event == "PLAYER_ENTERING_WORLD" then
+            -- Only send the message on the first login, not on zone changes or UI reloads
+            if not hasWelcomeMessageBeenSent and (isInitialLogin or isReloadingUi) then
+                SendWelcomeMessage()
+                hasWelcomeMessageBeenSent = true
+            end
+        end
+    end
+)
+
 -- Allow Magic Eraser to delete these consumables
 local AllowedDeleteConsumables = {
     -- https://www.wowhead.com/classic/items/consumables/food-and-drinks?filter=82:2:92;4:2:1;11400:0:0#0+1+20
