@@ -38,17 +38,19 @@ https://www.curseforge.com/wow/addons/magic-eraser
 
 ## Testing Notes
 
-🟢 Classic Era
+🟢 World of Warcraft Classic : Classic Era
 
-🟢 Classic Hardcore
+🟢 World of Warcraft Classic : Hardcore
 
-🟡 Season of Discovery
+🟡 World of Warcraft Classic : Season of Discovery
 
-🟢 Classic Anniversary
+🟢 World of Warcraft Classic : Anniversary Realms
+
+🟢 World of Warcraft Classic : Hardcore Anniversary Realms
 
 🔴 Cataclysm Classic
 
-🔴 Retail
+🔴 World of Warcraft
 
 Please reach out if you would like to be involved with testing!
 
