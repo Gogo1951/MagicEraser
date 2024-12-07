@@ -10,18 +10,6 @@ Showing bags are clean!
 
 <img width="431" alt="image" src="https://github.com/user-attachments/assets/323e7aa1-c7cd-4f3c-8739-3d35d15611eb">
 
-Examples:
-
-> Magic Eraser : Erasing \[Sapphire of Aku'Mai\], this item was associated with a quest you have completed.
-
-> Magic Eraser : Erasing 1x \[Cracked Egg Shells\], worth 4c. 
-
-> Magic Eraser : Erasing 4x \[Tel'Abim Banana\], worth 24c.
-
-> Magic Eraser : Erasing 1x \[Ancestral Gloves\], worth 48c.
-
-> Magic Eraser : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space.
-
 ## How It Works
 
 ⚠️ **Magic Eraser** acts decisively -- there is no "Are you sure?" step. 
@@ -31,8 +19,8 @@ Examples:
 * It looks at the following:
   * Completed Quest Items and "Provided For" Items that linger in your bag indefinitely.
   * Generic consumable items with a use level at least 10 levels lower than your character.
-  * Gray vendor items.
   * Vendor-quality white items.
+  * Gray vendor items.
 
 ## Download
 
