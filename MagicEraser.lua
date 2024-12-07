@@ -102,17 +102,26 @@ function MagicEraser:RunEraser()
         DeleteCursorItem()
 
         local message
+
         -- Check if the item is associated with a completed quest
-        if
-            self.AllowedDeleteQuestItems[itemInfo.itemID] and
-                self:IsAnyQuestCompleted(self.AllowedDeleteQuestItems[itemInfo.itemID])
-         then
-            message =
-                string.format(
-                "|cff00B0FFMagic Eraser|r : Erased %s, this item was associated with a quest you have completed.",
-                itemInfo.link
-            )
+        if self.AllowedDeleteQuestItems[itemInfo.itemID] then
+            local questIDs = self.AllowedDeleteQuestItems[itemInfo.itemID]
+            if questIDs and self:IsAnyQuestCompleted(questIDs) then
+                message =
+                    string.format(
+                    "|cff00B0FFMagic Eraser|r : Erased %s, this item was associated with a quest you have completed.",
+                    itemInfo.link
+                )
+            else
+                -- Fallback if quest is not completed (shouldn't happen)
+                message =
+                    string.format(
+                    "|cff00B0FFMagic Eraser|r : Erased %s, associated with an incomplete quest.",
+                    itemInfo.link
+                )
+            end
         else
+            -- Default message for non-quest items
             local valueString = self:FormatCurrency(itemInfo.value)
             local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
             message =
@@ -123,6 +132,10 @@ function MagicEraser:RunEraser()
                 valueString
             )
         end
+
+        -- Print debug info for validation
+        print("Item ID:", itemInfo.itemID, "Quest IDs:", self.AllowedDeleteQuestItems[itemInfo.itemID])
+        print("Final Message:", message)
 
         print(message)
     else
