@@ -4,7 +4,7 @@ A simple add-on that discards the lowest-value item in your bags -- including co
 
 Showing an item to delete.
 
-<img width="301" alt="image" src="https://github.com/user-attachments/assets/f6f9107a-5c66-4dce-8369-920f1d1a3a5d">
+<img width="307" alt="image" src="https://github.com/user-attachments/assets/1f568d95-48c8-4399-8746-e654de879ff7">
 
 Showing bags are clean!
 
