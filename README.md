@@ -1,5 +1,3 @@
-NOTE: This is a BETA. Reporting of "junk" items is very much appreciated.
-
 # Magic Eraser
 
 A simple add-on that discards the lowest-value item in your bags -- including completed quest items, vendor-quality white items, low-level consumables, and gray-quality "trash" items -- when you click the mini-map button.
