@@ -4,6 +4,10 @@ NOTE: This is a BETA. Reporting of "junk" items is very much appreciated.
 
 A simple add-on that discards the lowest-value item in your bags -- including completed quest items, gray items, and vendor-quality white items -- when you run the `/MagicEraser` slash-command.
 
+<img width="301" alt="image" src="https://github.com/user-attachments/assets/f6f9107a-5c66-4dce-8369-920f1d1a3a5d">
+
+<img width="431" alt="image" src="https://github.com/user-attachments/assets/323e7aa1-c7cd-4f3c-8739-3d35d15611eb">
+
 Examples:
 
 > Magic Eraser : Erasing \[Sapphire of Aku'Mai\]! This item was associated with a quest you have completed.
