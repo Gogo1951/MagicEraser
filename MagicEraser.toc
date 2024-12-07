@@ -7,4 +7,7 @@
 
 ## Interface: 11505
 
+Database/AllowedDeleteQuestItems.lua
+Database/AllowedDeleteConsumables.lua
+Database/AllowedDeleteEquipment.lua
 MagicEraser.lua
