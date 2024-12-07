@@ -42,6 +42,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [9309] = {2928}, -- Robo-mechanical Guts
     [12533] = {4867}, -- Roughshod Pike
     [19883] = {8201}, -- Sacred Cord
+    [5866] = {1194}, -- Sample of Indurium Ore
     [16784] = {6563}, -- Sapphire of Aku'Mai
     [4472] = {656}, -- Scroll of Myzrael
     [7666] = {2198}, -- Shattered Necklace
