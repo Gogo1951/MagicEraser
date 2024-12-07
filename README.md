@@ -36,8 +36,6 @@ Examples:
   * Gray vendor items.
   * Vendor-quality white items.
 
-➡️ In the future... A proper UI is in the works, but I wanted to release this while players are still leveling in the Anniversary Edition. Ideally some version of this will find its way into Questie. https://github.com/Questie/Questie/issues/6481
-
 ## Download
 
 You can find this on Curseforge.
