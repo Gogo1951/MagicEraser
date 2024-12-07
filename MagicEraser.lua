@@ -3,7 +3,8 @@ local hasWelcomeMessageBeenSent = false
 
 -- Welcome message function
 local function SendWelcomeMessage()
-    local welcomeMessage = "|cff00B0FFMagic Eraser|r : Use /MagicEraser to remove one junk item from your bag. Magic Eraser is in beta -- please report any issues, thanks!"
+    local welcomeMessage =
+        "|cff00B0FFMagic Eraser|r : Use /MagicEraser to remove one junk item from your bag. Magic Eraser is in beta -- please report any issues, thanks!"
     print(welcomeMessage)
 end
 
@@ -969,13 +970,18 @@ local function MagicEraser()
     local lowestValue, lowestBag, lowestSlot = nil, nil, nil
     local lowestItemLink, lowestStackCount = nil, nil
 
-    -- First, delete quest items for completed quests
+    -- Iterate over all bags and slots
     for bag = 0, 4 do
         local numSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, numSlots do
             local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
+                local _, _, itemRarity, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemInfo.hyperlink)
+                local stackCount = itemInfo.stackCount or 1
+                local totalValue = itemSellPrice * stackCount
+
+                -- Check for quest items (highest priority)
                 if AllowedDeleteQuestItems[itemID] and IsAnyQuestCompleted(AllowedDeleteQuestItems[itemID]) then
                     C_Container.PickupContainerItem(bag, slot)
                     DeleteCursorItem()
@@ -987,31 +993,28 @@ local function MagicEraser()
                     )
                     return
                 end
-            end
-        end
-    end
 
-    -- Next, find the lowest value consumables or equipment
-    for bag = 0, 4 do
-        local numSlots = C_Container.GetContainerNumSlots(bag)
-        for slot = 1, numSlots do
-            local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
-            if itemInfo and itemInfo.hyperlink then
-                local itemID = itemInfo.itemID
-                local _, _, itemRarity, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemInfo.hyperlink)
-
-                -- Check if the item is in AllowedDeleteConsumables or AllowedDeleteEquipment
-                if
-                    AllowedDeleteConsumables[itemID] and IsConsumableAndLevelAllowed(itemID) or
-                        AllowedDeleteEquipment[itemID]
-                 then
-                    local totalValue = itemSellPrice * itemInfo.stackCount
+                -- Check for allowed consumables
+                if AllowedDeleteConsumables[itemID] and IsConsumableAndLevelAllowed(itemID) then
                     if not lowestValue or totalValue < lowestValue then
-                        lowestValue = totalValue
-                        lowestBag = bag
-                        lowestSlot = slot
-                        lowestItemLink = itemInfo.hyperlink
-                        lowestStackCount = itemInfo.stackCount
+                        lowestValue, lowestBag, lowestSlot = totalValue, bag, slot
+                        lowestItemLink, lowestStackCount = itemInfo.hyperlink, stackCount
+                    end
+                end
+
+                -- Check for allowed equipment
+                if AllowedDeleteEquipment[itemID] then
+                    if not lowestValue or totalValue < lowestValue then
+                        lowestValue, lowestBag, lowestSlot = totalValue, bag, slot
+                        lowestItemLink, lowestStackCount = itemInfo.hyperlink, stackCount
+                    end
+                end
+
+                -- Check for gray-quality trash items
+                if itemRarity == 0 and itemSellPrice > 0 then
+                    if not lowestValue or totalValue < lowestValue then
+                        lowestValue, lowestBag, lowestSlot = totalValue, bag, slot
+                        lowestItemLink, lowestStackCount = itemInfo.hyperlink, stackCount
                     end
                 end
             end
@@ -1023,12 +1026,12 @@ local function MagicEraser()
         C_Container.PickupContainerItem(lowestBag, lowestSlot)
         DeleteCursorItem()
 
-        -- Convert copper to gold, silver, and copper
+        -- Convert copper to gold, silver, and copper for display
         local gold = math.floor(lowestValue / 10000)
         local silver = math.floor((lowestValue % 10000) / 100)
         local copper = lowestValue % 100
 
-        -- Print the result with dynamic value formatting
+        -- Output the formatted message
         if gold > 0 then
             print(
                 string.format(
@@ -1061,6 +1064,7 @@ local function MagicEraser()
             )
         end
     else
+        -- No item found to delete
         print(
             "|cff00B0FFMagic Eraser|r : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
         )
