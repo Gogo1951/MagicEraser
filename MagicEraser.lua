@@ -6,9 +6,12 @@ local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
 local UPDATE_THROTTLE = 0.5
 
 -- Load allowed item lists
-MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems
-MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables
-MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment
+MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
+MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables or {}
+MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
+
+-- Tooltip Frame
+MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
 
 -- Helper function to format currency values
 function MagicEraser:FormatCurrency(value)
@@ -30,26 +33,6 @@ function MagicEraser:FormatCurrency(value)
     return table.concat(parts, " ")
 end
 
--- Function to check if the player has completed any quest in the list
-function MagicEraser:IsAnyQuestCompleted(questIDs)
-    for _, questID in ipairs(questIDs) do
-        if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-            return true
-        end
-    end
-    return false
-end
-
--- Function to check if the consumable's use level is valid
-function MagicEraser:IsConsumableAndLevelAllowed(itemID)
-    local useLevel = select(5, GetItemInfo(itemID))
-    if useLevel and useLevel > 0 then
-        local playerLevel = UnitLevel("player")
-        return (playerLevel - useLevel >= 10)
-    end
-    return true
-end
-
 -- Function to get the next erasable item info
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItemInfo = nil, nil
@@ -69,9 +52,7 @@ function MagicEraser:GetNextErasableItem()
                 local totalValue = itemSellPrice * stackCount
 
                 if
-                    (self.AllowedDeleteQuestItems[itemID] and
-                        self:IsAnyQuestCompleted(self.AllowedDeleteQuestItems[itemID])) or
-                        (self.AllowedDeleteConsumables[itemID] and self:IsConsumableAndLevelAllowed(itemID)) or
+                    (self.AllowedDeleteQuestItems[itemID]) or (self.AllowedDeleteConsumables[itemID]) or
                         self.AllowedDeleteEquipment[itemID] or
                         (itemRarity == 0 and itemSellPrice > 0)
                  then
@@ -102,8 +83,6 @@ function MagicEraser:RunEraser()
         DeleteCursorItem()
 
         local message
-
-        -- If the item has no value, assume it's a quest item
         if itemInfo.value == 0 then
             local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
             message =
@@ -113,7 +92,6 @@ function MagicEraser:RunEraser()
                 stackString
             )
         else
-            -- Default message for items with value
             local valueString = self:FormatCurrency(itemInfo.value)
             local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
             message =
@@ -124,7 +102,6 @@ function MagicEraser:RunEraser()
                 valueString
             )
         end
-
         print(message)
     else
         print(
@@ -132,54 +109,55 @@ function MagicEraser:RunEraser()
         )
     end
 
+    -- Update the icon and tooltip
     self:UpdateMinimapIconAndTooltip()
+
+    -- Always refresh the tooltip
+    GameTooltip:Hide() -- Ensure the tooltip resets
+    self:RefreshTooltip()
+end
+
+-- Function to refresh the tooltip
+function MagicEraser:RefreshTooltip()
+    local tooltip = GameTooltip -- Use the standard GameTooltip
+    local itemInfo = self:GetNextErasableItem()
+
+    -- Reset the tooltip
+    tooltip:ClearLines()
+
+    tooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
+    tooltip:AddLine(" ", 1, 1, 1)
+    tooltip:AddLine("Click to erase the lowest-value item in your bags.", 1, 1, 1)
+    tooltip:AddLine(" ", 1, 1, 1)
+
+    if itemInfo then
+        local valueString = self:FormatCurrency(itemInfo.value)
+        local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
+
+        tooltip:AddDoubleLine(string.format("%s%s", itemInfo.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
+        tooltip:AddTexture(itemInfo.icon)
+    else
+        tooltip:AddLine("Congratulations, your bags are full of good stuff!")
+        tooltip:AddLine(" ")
+        tooltip:AddLine("You'll have to manually erase something if you need to free up more space.")
+    end
+
+    tooltip:Show()
 end
 
 -- Function to update the minimap icon and tooltip
 function MagicEraser:UpdateMinimapIconAndTooltip()
     local itemInfo = self:GetNextErasableItem()
 
-    -- Update the icon with the item's icon or fall back to the default
     if itemInfo and itemInfo.icon then
         self.MagicEraserLDB.icon = itemInfo.icon
     else
         self.MagicEraserLDB.icon = DEFAULT_ICON
     end
 
-    -- Refresh the GameTooltip if visible
-    if GameTooltip:IsVisible() then
-        self:RefreshTooltip()
-    end
-
-    -- Ensure LDBIcon updates the minimap button
     if LDBIcon then
         LDBIcon:Refresh("MagicEraser", MagicEraser.DB)
     end
-end
-
--- Function to refresh the tooltip
-function MagicEraser:RefreshTooltip()
-    local itemInfo = self:GetNextErasableItem()
-    GameTooltip:ClearLines()
-
-    GameTooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
-    GameTooltip:AddLine(" ", 1, 1, 1)
-    GameTooltip:AddLine("Click to erase the lowest-value item in your bags.", 1, 1, 1)
-    GameTooltip:AddLine(" ", 1, 1, 1)
-
-    if itemInfo then
-        local valueString = self:FormatCurrency(itemInfo.value)
-        local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
-
-        GameTooltip:AddDoubleLine(string.format("%s%s", itemInfo.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
-        GameTooltip:AddTexture(itemInfo.icon)
-    else
-        GameTooltip:AddLine("Congratulations, your bags are full of good stuff!")
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine("You'll have to manually erase something if you need to free up more space.")
-    end
-
-    GameTooltip:Show()
 end
 
 -- Minimap icon initialization
@@ -200,8 +178,13 @@ MagicEraser.MagicEraserLDB =
                 MagicEraser:RunEraser()
             end
         end,
-        OnEnter = function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+        OnEnter = function(iconFrame)
+            if not iconFrame or not iconFrame:IsObjectType("Frame") then
+                print("MagicEraser: Invalid icon frame passed to OnEnter.")
+                return
+            end
+
+            GameTooltip:SetOwner(iconFrame, "ANCHOR_BOTTOMLEFT") -- Attach tooltip to frame
             MagicEraser:RefreshTooltip()
         end,
         OnLeave = function()
@@ -226,7 +209,13 @@ frame:SetScript(
             return
         end
         lastUpdateTime = GetTime()
+
         MagicEraser:UpdateMinimapIconAndTooltip()
+
+        -- Always refresh the tooltip
+        GameTooltip:Hide() -- Ensure the tooltip resets
+        MagicEraser:RefreshTooltip()
+
         if event == "PLAYER_LOGIN" then
             LDBIcon:Show("MagicEraser")
         end
