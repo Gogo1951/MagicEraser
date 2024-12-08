@@ -1,5 +1,5 @@
 MagicEraser_AllowedDeleteQuestItems = {
-    -- Example: [ItemID]     = {QuestID1, QuestID2, ...}
+    -- [ItemID] = {QuestID1, QuestID2, ...} -- Item Name
     [1358] = {138}, -- A Clue to Sander's Treasure
     [4843] = {717}, -- Amethyst Runestone
     [1361] = {139}, -- Another Clue to Sander's Treasure
