@@ -1,4 +1,5 @@
 MagicEraser_AllowedDeleteConsumables = {
+    -- Food Sold by Vendors
     -- https://www.wowhead.com/classic/items/consumables/food-and-drinks?filter=82:2:92;4:2:1;11400:0:0#0+1+20
     [8932] = true, -- Alterac Swiss
     [16166] = true, -- Bean Soup
@@ -89,5 +90,79 @@ MagicEraser_AllowedDeleteConsumables = {
     [9260] = true, -- Volatile Rum
     [3771] = true, -- Wild Hog Shank
     [16169] = true, -- Wild Ricecake
-    [22324] = true -- Winter Kimchi
+    [22324] = true, -- Winter Kimchi
+    -- Scrolls
+    -- https://www.wowhead.com/classic/items/consumables/type:4#0-4-3+19
+    -- Scrolls that don't give Agility, Strength, or Protection
+    [10306] = true, --  Scroll of Spirit IV
+    [10307] = true, --  Scroll of Stamina IV
+    [10308] = true, -- Scroll of Intellect IV
+    [1180] = true, --  Scroll of Stamina
+    [1181] = true, --  Scroll of Spirit    
+    [1711] = true, --  Scroll of Stamina II
+    [1712] = true, --  Scroll of Spirit II
+    [2290] = true, --  Scroll of Intellect II
+    [4419] = true, --  Scroll of Intellect III
+    [4422] = true, --  Scroll of Stamina III
+    [4424] = true, --  Scroll of Spirit III
+    [955] = true, -- Scroll of Intellect
+    -- Food & Drinks NOT Sold by Vendors
+    -- https://www.wowhead.com/classic/items/consumables/food-and-drinks/min-req-level:0?filter=82:92:22:123:21;4:2:5:5:5;11400:0:1:1:1#50
+    -- Food that doesn't give any Buffs
+    [1072] = true, -- Full Moonshine
+    [10841] = true, -- Goldthorn Tea
+    [1119] = true, -- Bottled Spirits
+    [11415] = true, -- Mixed Berries
+    [11846] = true, -- Wizbang's Special Brew
+    [12003] = true, -- Dark Dwarven Lager
+    [12763] = true, -- Un'Goro Etherfruit
+    [1326] = true, -- Sauteed Sunfish
+    [13546] = true, -- Bloodbelly Fish
+    [13930] = true, -- Filet of Redgill
+    [13933] = true, -- Lobster Stew
+    [13935] = true, -- Baked Salmon
+    [1401] = true, -- Green Tea Leaf
+    [16171] = true, -- Shinsollo
+    [16766] = true, -- Undermine Clam Chowder
+    [18255] = true, -- Runn Tum Tuber
+    [18300] = true, -- Hyjal Nectar
+    [19994] = true, -- Harvest Fruit
+    [19995] = true, -- Harvest Boar
+    [19996] = true, -- Harvest Fish
+    [20031] = true, -- Essence Mango
+    [21215] = true, -- Graccu's Mince Meat Fruitcake
+    [21235] = true, -- Winter Veil Roast
+    [21240] = true, -- Winter Veil Candy
+    [21254] = true, -- Winter Veil Cookie
+    [23172] = true, -- Refreshing Red Apple
+    [2679] = true, -- Charred Wolf Meat
+    [2681] = true, -- Roasted Boar Meat
+    [2682] = true, -- Cooked Crab Claw
+    [2685] = true, -- Succulent Pork Ribs
+    [3448] = true, -- Senggin Root
+    [4656] = true, -- Small Pumpkin
+    [4791] = true, -- Enchanted Water
+    [5057] = true, -- Ripe Watermelon
+    [5066] = true, -- Fissure Plant
+    [5095] = true, -- Rainbow Fin Albacore
+    [5265] = true, -- Watered-down Beer
+    [5342] = true, -- Raptor Punch
+    [5473] = true, -- Scorpid Surprise
+    [5478] = true, -- Dig Rat Stew
+    [5526] = true, -- Clam Chowder
+    [6290] = true, -- Brilliant Smallfish
+    [6316] = true, -- Loch Frenzy Delight
+    [6807] = true, -- Frog Leg Stew
+    [6887] = true, -- Spotted Yellowtail
+    [6890] = true, -- Smoked Bear Meat
+    [7097] = true, -- Leg Meat
+    [733] = true, -- Westfall Stew
+    [8243] = true, -- Scooby Snack
+    [8364] = true, -- Mithril Head Trout
+    [8543] = true, -- Underwater Mushroom Cap
+    [9360] = true, -- Cuergo's Gold
+    [9361] = true, -- Cuergo's Gold with Worm
+    [9451] = true, -- Bubbling Water
+    [961] = true, -- Healing Herb
+    [9681] = true, -- Grilled King Crawler Legs
 }
