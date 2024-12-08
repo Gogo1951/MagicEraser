@@ -60,6 +60,8 @@ MagicEraser_AllowedDeleteQuestItems = {
     [12730] = {4867}, -- Warosh's Scroll
     [4823] = {772}, -- Water of the Seers
     [9279] = {2930}, -- White Punch Card
+    -- [6948] = {783, 170, 456, 4641, 757, 364}, -- Hearthstone, Test Complete
+    -- [6948] = {99999999}, -- Hearthstone, Test Incomplete
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
 }
