@@ -33,6 +33,14 @@ function MagicEraser:FormatCurrency(value)
     return table.concat(parts, " ")
 end
 
+-- Function to check if a quest is completed
+function MagicEraser:IsQuestCompleted(questID)
+    if C_QuestLog.IsQuestFlaggedCompleted then
+        return C_QuestLog.IsQuestFlaggedCompleted(questID)
+    end
+    return false
+end
+
 -- Function to get the next erasable item info
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItemInfo = nil, nil
@@ -51,8 +59,18 @@ function MagicEraser:GetNextErasableItem()
                 local stackCount = itemInfo.stackCount or 1
                 local totalValue = itemSellPrice * stackCount
 
+                local canDeleteQuestItem = false
+                if self.AllowedDeleteQuestItems[itemID] then
+                    for _, questID in ipairs(self.AllowedDeleteQuestItems[itemID]) do
+                        if self:IsQuestCompleted(questID) then
+                            canDeleteQuestItem = true
+                            break
+                        end
+                    end
+                end
+
                 if
-                    (self.AllowedDeleteQuestItems[itemID]) or (self.AllowedDeleteConsumables[itemID]) or
+                    (canDeleteQuestItem) or (self.AllowedDeleteConsumables[itemID]) or
                         self.AllowedDeleteEquipment[itemID] or
                         (itemRarity == 0 and itemSellPrice > 0)
                  then
