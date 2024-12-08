@@ -1,5 +1,5 @@
 MagicEraser_AllowedDeleteConsumables = {
-    -- Food Sold by Vendors
+    -- Food & Drinks Sold by Vendors (& No Buffs)
     -- https://www.wowhead.com/classic/items/consumables/food-and-drinks?filter=82:2:92;4:2:1;11400:0:0#0+1+20
     [8932] = true, -- Alterac Swiss
     [16166] = true, -- Bean Soup
@@ -106,9 +106,8 @@ MagicEraser_AllowedDeleteConsumables = {
     [4422] = true, --  Scroll of Stamina III
     [4424] = true, --  Scroll of Spirit III
     [955] = true, -- Scroll of Intellect
-    -- Food & Drinks NOT Sold by Vendors
+    -- Food & Drinks NOT Sold by Vendors (& No Buffs)
     -- https://www.wowhead.com/classic/items/consumables/food-and-drinks/min-req-level:0?filter=82:92:22:123:21;4:2:5:5:5;11400:0:1:1:1#50
-    -- Food that doesn't give any Buffs
     [1072] = true, -- Full Moonshine
     [10841] = true, -- Goldthorn Tea
     [1119] = true, -- Bottled Spirits
