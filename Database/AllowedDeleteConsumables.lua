@@ -1,5 +1,4 @@
 MagicEraser_AllowedDeleteConsumables = {
-
     -- [ItemID] = true,       -- Item Name
 
     -- Food & Drinks Sold by Vendors (& No Buffs)
