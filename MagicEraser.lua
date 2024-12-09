@@ -154,10 +154,10 @@ function MagicEraser:RefreshTooltip()
 
         tooltip:AddDoubleLine(string.format("%s%s", itemInfo.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
     else
-        tooltip:AddLine("Congratulations, your bags are full of good stuff!")
+    tooltip:AddLine("|cff33FF33Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
         tooltip:AddLine(" ")
-        tooltip:AddLine("You'll have to manually erase something if you")
-        tooltip:AddLine("need to free up more space.")
+        tooltip:AddLine("|cffFFFFFFYou'll have to manually erase something if you|r", 1, 1, 1)
+        tooltip:AddLine("|cffFFFFFFneed to free up more space.|r", 1, 1, 1)
     end
 
     tooltip:Show()
