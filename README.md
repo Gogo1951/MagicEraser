@@ -8,7 +8,7 @@ An example mimi-map icon & tool tip when there is an item to delete.
 
 An example mimi-map icon & tool tip when your bags are clean!
 
-<img width="299" alt="image" src="https://github.com/user-attachments/assets/f54c1d38-bb97-4237-8e68-6644ca150856">
+<img width="299" alt="Pasted_Image_12_9_24__9_09 AM" src="https://github.com/user-attachments/assets/3bba4dc9-2425-4140-ab33-5bdb5fb87554">
 
 ## How It Works
 
