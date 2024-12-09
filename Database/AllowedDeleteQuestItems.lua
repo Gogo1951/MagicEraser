@@ -96,7 +96,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [9279]      =    {2930},                        --  White Punch Card
     [13158]     =    {5083},                        --  Words of the High Chief
 
-    -- [6948]   = {783, 170, 456, 4641, 757, 364},  -- Hearthstone, Test to Delete Item if Quests are Complete
+    -- [6948]   = {783, 170, 456, 4641, 757, 364},  -- Hearthstone, Test to Delete Item if Quest is Complete
     -- [6948]   = {99999999},                       -- Hearthstone, Test to Delete Item if Quest is Incomplete
 }
 
