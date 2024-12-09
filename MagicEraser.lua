@@ -3,7 +3,7 @@ local MagicEraser = {}
 
 -- Constants
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
-local UPDATE_THROTTLE = 0.5
+local UPDATE_THROTTLE = 0.3
 
 -- Load allowed item lists
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
@@ -145,16 +145,16 @@ function MagicEraser:RefreshTooltip()
 
     tooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
     tooltip:AddLine(" ", 1, 1, 1)
-    tooltip:AddLine("Click to erase the lowest-value item in your bags.", 1, 1, 1)
-    tooltip:AddLine(" ", 1, 1, 1)
 
     if itemInfo then
+        tooltip:AddLine("Click to erase the lowest-value item in your bags.", 1, 1, 1)
+        tooltip:AddLine(" ", 1, 1, 1)
         local valueString = self:FormatCurrency(itemInfo.value)
         local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
 
         tooltip:AddDoubleLine(string.format("%s%s", itemInfo.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
     else
-    tooltip:AddLine("|cff33FF33Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
+        tooltip:AddLine("|cff33FF33Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
         tooltip:AddLine(" ")
         tooltip:AddLine("|cffFFFFFFYou'll have to manually erase something if you|r", 1, 1, 1)
         tooltip:AddLine("|cffFFFFFFneed to free up more space.|r", 1, 1, 1)
