@@ -52,38 +52,40 @@ function MagicEraser:GetNextErasableItem()
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
                 local _, _, itemRarity, _, _, _, _, _, _, itemIcon, itemSellPrice = GetItemInfo(itemInfo.hyperlink)
+
+                -- Skip items with incomplete data
                 if not itemRarity or not itemSellPrice then
-                    return nil
-                end
+                    C_Item.RequestLoadItemDataByID(itemID)
+                else
+                    local stackCount = itemInfo.stackCount or 1
+                    local totalValue = itemSellPrice * stackCount
 
-                local stackCount = itemInfo.stackCount or 1
-                local totalValue = itemSellPrice * stackCount
-
-                local canDeleteQuestItem = false
-                if self.AllowedDeleteQuestItems[itemID] then
-                    for _, questID in ipairs(self.AllowedDeleteQuestItems[itemID]) do
-                        if self:IsQuestCompleted(questID) then
-                            canDeleteQuestItem = true
-                            break
+                    local canDeleteQuestItem = false
+                    if self.AllowedDeleteQuestItems[itemID] then
+                        for _, questID in ipairs(self.AllowedDeleteQuestItems[itemID]) do
+                            if self:IsQuestCompleted(questID) then
+                                canDeleteQuestItem = true
+                                break
+                            end
                         end
                     end
-                end
 
-                if
-                    (canDeleteQuestItem) or (self.AllowedDeleteConsumables[itemID]) or
-                        self.AllowedDeleteEquipment[itemID] or
-                        (itemRarity == 0 and itemSellPrice > 0)
-                 then
-                    if not lowestValue or totalValue < lowestValue then
-                        lowestValue = totalValue
-                        lowestItemInfo = {
-                            link = itemInfo.hyperlink,
-                            count = stackCount,
-                            value = totalValue,
-                            icon = itemIcon,
-                            bag = bag,
-                            slot = slot
-                        }
+                    if
+                        (canDeleteQuestItem) or (self.AllowedDeleteConsumables[itemID]) or
+                            self.AllowedDeleteEquipment[itemID] or
+                            (itemRarity == 0 and itemSellPrice > 0)
+                     then
+                        if not lowestValue or totalValue < lowestValue then
+                            lowestValue = totalValue
+                            lowestItemInfo = {
+                                link = itemInfo.hyperlink,
+                                count = stackCount,
+                                value = totalValue,
+                                icon = itemIcon,
+                                bag = bag,
+                                slot = slot
+                            }
+                        end
                     end
                 end
             end
@@ -95,6 +97,11 @@ end
 
 -- Function to delete the lowest value item
 function MagicEraser:RunEraser()
+    if InCombatLockdown() then
+        print("|cff00B0FFMagic Eraser|r: Cannot delete items while in combat.")
+        return
+    end
+
     local itemInfo = self:GetNextErasableItem()
     if itemInfo then
         C_Container.PickupContainerItem(itemInfo.bag, itemInfo.slot)
@@ -122,27 +129,31 @@ function MagicEraser:RunEraser()
         end
         print(message)
     else
-        print(
-            "|cff00B0FFMagic Eraser|r : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
-        )
+        -- Throttled no-item message
+        if not self.lastNoItemMessageTime or (GetTime() - self.lastNoItemMessageTime >= 10) then
+            print(
+                "|cff00B0FFMagic Eraser|r : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
+            )
+            self.lastNoItemMessageTime = GetTime()
+        end
     end
 
     -- Update the icon and tooltip
     self:UpdateMinimapIconAndTooltip()
 
-    -- Always refresh the tooltip
-    GameTooltip:Hide() -- Ensure the tooltip resets
-    self:RefreshTooltip()
+    -- Refresh the tooltip if visible
+    if GameTooltip:IsVisible() then
+        GameTooltip:Hide() -- Ensure the tooltip resets
+        self:RefreshTooltip()
+    end
 end
 
 -- Function to refresh the tooltip
 function MagicEraser:RefreshTooltip()
-    local tooltip = GameTooltip -- Use the standard GameTooltip
+    local tooltip = GameTooltip
     local itemInfo = self:GetNextErasableItem()
 
-    -- Reset the tooltip
     tooltip:ClearLines()
-
     tooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
     tooltip:AddLine(" ", 1, 1, 1)
 
@@ -202,7 +213,7 @@ MagicEraser.MagicEraserLDB =
                 return
             end
 
-            GameTooltip:SetOwner(iconFrame, "ANCHOR_BOTTOMLEFT") -- Attach tooltip to frame
+            GameTooltip:SetOwner(iconFrame, "ANCHOR_BOTTOMLEFT")
             MagicEraser:RefreshTooltip()
         end,
         OnLeave = function()
@@ -230,9 +241,10 @@ frame:SetScript(
 
         MagicEraser:UpdateMinimapIconAndTooltip()
 
-        -- Always refresh the tooltip
-        GameTooltip:Hide() -- Ensure the tooltip resets
-        MagicEraser:RefreshTooltip()
+        if GameTooltip:IsVisible() then
+            GameTooltip:Hide()
+            MagicEraser:RefreshTooltip()
+        end
 
         if event == "PLAYER_LOGIN" then
             LDBIcon:Show("MagicEraser")
