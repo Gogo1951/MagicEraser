@@ -19,7 +19,7 @@ An example mimi-map icon & tool tip when your bags are clean!
 * It looks at the following:
   * Completed Quest Items and "Provided For" Items that linger in your bag indefinitely.
   * Generic consumable items with a use level at least 10 levels lower than your character.
-  * Vendor-quality white items.
+  * Vendor-quality white items, from an approved list.
   * Gray vendor items.
 
 ## Download
