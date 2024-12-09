@@ -2,13 +2,13 @@
 
 A simple add-on that discards the lowest-value item in your bags -- including completed quest items, vendor-quality white items, low-level consumables, and gray-quality "trash" items -- when you click the mini-map button.
 
-Showing an item to delete.
+An example mimi-map icon & tool tip when there is an item to delete.
 
 <img width="307" alt="image" src="https://github.com/user-attachments/assets/1f568d95-48c8-4399-8746-e654de879ff7">
 
-Showing bags are clean!
+An example mimi-map icon & tool tip when your bags are clean!
 
-<img width="431" alt="image" src="https://github.com/user-attachments/assets/323e7aa1-c7cd-4f3c-8739-3d35d15611eb">
+<img width="299" alt="image" src="https://github.com/user-attachments/assets/f54c1d38-bb97-4237-8e68-6644ca150856">
 
 ## How It Works
 
