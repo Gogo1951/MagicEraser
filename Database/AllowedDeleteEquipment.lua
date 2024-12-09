@@ -1,4 +1,5 @@
 MagicEraser_AllowedDeleteEquipment = {
+    
     -- [ItemID] = true,       -- Item Name
 
     -- https://www.wowhead.com/classic/items/quality:1/slot:16:5:8:10:1:23:7:21:2:22:13:15:26:28:14:3:25:17:6:9?filter=195%3A2%3A5%3A85%3A82%3B1%3A2%3A2%3A5%3A4%3B0%3A0%3A0%3A0%3A11400
