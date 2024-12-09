@@ -4,7 +4,7 @@ A simple add-on that discards the lowest-value item in your bags -- including co
 
 An example mimi-map icon & tool tip when there is an item to delete.
 
-<img width="307" alt="image" src="https://github.com/user-attachments/assets/1f568d95-48c8-4399-8746-e654de879ff7">
+<img width="299" alt="Pasted_Image_12_9_24__9_05 AM" src="https://github.com/user-attachments/assets/1e99bbeb-4ad5-479e-a81b-e1d847227fb7">
 
 An example mimi-map icon & tool tip when your bags are clean!
 
