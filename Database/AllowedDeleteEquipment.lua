@@ -629,6 +629,7 @@ MagicEraser_AllowedDeleteEquipment = {
     [4263]      = true,       -- Standard Issue Shield
     -- [7922]   = true,       -- Steel Plate Helm
     [2494]      = true,       -- Stiletto
+    [3360] 		= true,       -- Stitches' Femur
     [781]       = true,       -- Stone Gnoll Hammer
     [2268]      = true,       -- Stonesplinter Blade
     [5109]      = true,       -- Stonesplinter Rags
