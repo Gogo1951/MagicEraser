@@ -13,6 +13,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [10575]     = {4023},                           -- Black Dragonflight Molt
     [12341]     = {16072},                          -- Blackwood Fruit Sample
     [12343]     = {4763},                           -- Blackwood Nut Sample
+    [11467] 	= {4283}, 		                    -- Blackrock Medallion
     [7668]      = {2201, 2339},                     -- Bloodstained Journal
     [13159]     = {5206},                           -- Bone Dust
     [4649]      = {735},                            -- Bonegrip's Note
