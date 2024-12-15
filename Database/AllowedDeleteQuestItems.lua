@@ -13,7 +13,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [10575]     = {4023},                           -- Black Dragonflight Molt
     [12341]     = {16072},                          -- Blackwood Fruit Sample
     [12343]     = {4763},                           -- Blackwood Nut Sample
-    [11467] 	= {4283},                           -- Blackrock Medallion
+    [11467]     = {4283},                           -- Blackrock Medallion
     [7668]      = {2201, 2339},                     -- Bloodstained Journal
     [13159]     = {5206},                           -- Bone Dust
     [4649]      = {735},                            -- Bonegrip's Note
@@ -89,6 +89,8 @@ MagicEraser_AllowedDeleteQuestItems = {
     [3248]      = {253},                            -- Translated Letter from The Embalmer
     [16991]     = {6624, 6622},                     -- Triage Bandage
     [9523]      = {3042},                           -- Troll Temper
+    [12219]     = {4742},                           -- Unadorned Seal of Ascension
+    [12323]     = {4743},                           -- Unforged Seal of Ascension
     [5884]      = {1206},                           -- Unpopped Darkmist Eye
     [4904]      = {812},                            -- Venomtail Antidote
     [12730]     = {4867},                           -- Warosh's Scroll
@@ -105,4 +107,5 @@ MagicEraser_AllowedDeleteQuestItems = {
     -- https://www.google.com/search?q=site%3Awww.wowhead.com%2Fclassic%2Fitem+%22safe+to+delete%22+OR+%22can+be+deleted%22+OR+%22destroy+the+junk%22&hl=en
     
     -- TODO
-    -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and discard if found.
+    -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and erase if found.
+    -- Check for items like [Henrig Lonebrow's Journal] that are lootable even after you completed the non-repeatable quest that they start, and erase if found.
