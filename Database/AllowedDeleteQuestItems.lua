@@ -106,7 +106,7 @@ MagicEraser_AllowedDeleteQuestItems = {
 }
 
     -- Useful Google Search to find safe to delete items
-    -- https://www.google.com/search?q=site%3Awww.wowhead.com%2Fclassic%2Fitem+%22delete%22+OR+%22trash%22+OR+%22junk%22+OR+%22destroy%22+OR+%22safe+to%22&hl=en
+    -- https://www.google.com/search?q=site%3Awww.wowhead.com%2Fclassic%2Fitem+%22delete%22+OR+%22trash%22+OR+%22junk%22+OR+%22destroy%22+OR+%22safe+to%22+-%22Added+in+SoD%22&hl=en
     
     -- TODO
     -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and erase if found.
