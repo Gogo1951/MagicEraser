@@ -5,7 +5,7 @@
 
 ## X-Curse-Project-ID: 1146812
 
-## Interface: 11505
+## Interface: 11506
 
 Database/AllowedDeleteQuestItems.lua
 Database/AllowedDeleteConsumables.lua
