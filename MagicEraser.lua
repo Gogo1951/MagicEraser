@@ -4,6 +4,7 @@ local MagicEraser = {}
 -- Constants
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
 local UPDATE_THROTTLE = 0.3
+local DATA_REQUEST_THROTTLE = 1 -- Throttle item data requests to once per second
 
 -- Load allowed item lists
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
@@ -41,9 +42,15 @@ function MagicEraser:IsQuestCompleted(questID)
     return false
 end
 
+-- Function to get the player's current level
+function MagicEraser:GetPlayerLevel()
+    return UnitLevel("player")
+end
+
 -- Function to get the next erasable item info
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItemInfo = nil, nil
+    local playerLevel = self:GetPlayerLevel()
 
     for bag = 0, 4 do
         local numSlots = C_Container.GetContainerNumSlots(bag)
@@ -51,11 +58,19 @@ function MagicEraser:GetNextErasableItem()
             local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
-                local _, _, itemRarity, _, _, _, _, _, _, itemIcon, itemSellPrice = GetItemInfo(itemInfo.hyperlink)
+                local itemName, _, itemRarity, itemLevel, _, _, _, _, _, itemIcon, itemSellPrice =
+                    GetItemInfo(itemInfo.hyperlink)
 
-                -- Skip items with incomplete data
-                if not itemRarity or not itemSellPrice then
+                -- If item data is incomplete, request it and skip this item for now
+                if not itemName or not itemRarity or not itemSellPrice or not itemLevel then
                     C_Item.RequestLoadItemDataByID(itemID)
+                    -- Schedule a recheck of this item in the next run
+                    C_Timer.After(
+                        0.5,
+                        function()
+                            self:UpdateMinimapIconAndTooltip()
+                        end
+                    )
                 else
                     local stackCount = itemInfo.stackCount or 1
                     local totalValue = itemSellPrice * stackCount
@@ -70,9 +85,12 @@ function MagicEraser:GetNextErasableItem()
                         end
                     end
 
+                    -- Check if the item is a consumable and if its level is at least 10 levels lower than the player's level
+                    local isConsumable = self.AllowedDeleteConsumables[itemID]
+                    local isLowLevelConsumable = isConsumable and itemLevel and (playerLevel - itemLevel >= 10)
+
                     if
-                        (canDeleteQuestItem) or (self.AllowedDeleteConsumables[itemID]) or
-                            self.AllowedDeleteEquipment[itemID] or
+                        (canDeleteQuestItem) or (isLowLevelConsumable) or self.AllowedDeleteEquipment[itemID] or
                             (itemRarity == 0 and itemSellPrice > 0)
                      then
                         if not lowestValue or totalValue < lowestValue then
@@ -98,7 +116,7 @@ end
 -- Function to delete the lowest value item
 function MagicEraser:RunEraser()
     if InCombatLockdown() then
-        print("|cff00B0FFMagic Eraser|r: Cannot delete items while in combat.")
+        print("|cff00B0FFMagic Eraser|r : Cannot delete items while in combat.")
         return
     end
 
@@ -228,24 +246,34 @@ LDBIcon:Register("MagicEraser", MagicEraser.MagicEraserLDB, MagicEraser.DB)
 -- Event handling with throttle
 local frame = CreateFrame("Frame")
 local lastUpdateTime = 0
+local lastDataRequestTime = 0
 
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("BAG_UPDATE")
 frame:SetScript(
     "OnEvent",
     function(_, event)
-        if event == "BAG_UPDATE" and (GetTime() - lastUpdateTime < UPDATE_THROTTLE) then
-            return
+        if event == "BAG_UPDATE" then
+            -- Throttle bag updates
+            if GetTime() - lastUpdateTime < UPDATE_THROTTLE then
+                return
+            end
+            lastUpdateTime = GetTime()
+
+            -- Throttle item data requests
+            if GetTime() - lastDataRequestTime >= DATA_REQUEST_THROTTLE then
+                MagicEraser:UpdateMinimapIconAndTooltip()
+                lastDataRequestTime = GetTime()
+            end
         end
-        lastUpdateTime = GetTime()
 
-        MagicEraser:UpdateMinimapIconAndTooltip()
-
+        -- Refresh the tooltip if visible
         if GameTooltip:IsVisible() then
             GameTooltip:Hide()
             MagicEraser:RefreshTooltip()
         end
 
+        -- Initialize the minimap icon on login
         if event == "PLAYER_LOGIN" then
             LDBIcon:Show("MagicEraser")
         end
