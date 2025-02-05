@@ -3,8 +3,10 @@ local MagicEraser = {}
 
 -- Constants
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
-local UPDATE_THROTTLE = 0.3
+local UPDATE_THROTTLE = 0.1
 local DATA_REQUEST_THROTTLE = 1 -- Throttle item data requests to once per second
+local BAG_UPDATE_DELAY = 0.1 -- Delay for handling BAG_UPDATE event
+local MAX_CACHE_ITEMS = 100 -- Maximum number of items in the cache
 
 -- Load allowed item lists
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
@@ -13,6 +15,9 @@ MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
 
 -- Tooltip Frame
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
+
+-- Cache for item information
+MagicEraser.ItemCache = {}
 
 -- Helper function to format currency values
 function MagicEraser:FormatCurrency(value)
@@ -52,6 +57,11 @@ function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItemInfo = nil, nil
     local playerLevel = self:GetPlayerLevel()
 
+    -- Clear the cache if it exceeds the maximum size
+    if #MagicEraser.ItemCache > MAX_CACHE_ITEMS then
+        MagicEraser.ItemCache = {}
+    end
+
     for bag = 0, 4 do
         local numSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, numSlots do
@@ -60,6 +70,9 @@ function MagicEraser:GetNextErasableItem()
                 local itemID = itemInfo.itemID
                 local itemName, _, itemRarity, itemLevel, _, _, _, _, _, itemIcon, itemSellPrice =
                     GetItemInfo(itemInfo.hyperlink)
+
+                -- Cache the item information
+                MagicEraser.ItemCache[itemID] = itemInfo
 
                 -- If item data is incomplete, request it and skip this item for now
                 if not itemName or not itemRarity or not itemSellPrice or not itemLevel then
@@ -90,8 +103,8 @@ function MagicEraser:GetNextErasableItem()
                     local isLowLevelConsumable = isConsumable and itemLevel and (playerLevel - itemLevel >= 10)
 
                     if
-                        (canDeleteQuestItem) or (isLowLevelConsumable) or self.AllowedDeleteEquipment[itemID] or
-                            (itemRarity == 0 and itemSellPrice > 0)
+                        (canDeleteQuestItem or isLowLevelConsumable or self.AllowedDeleteEquipment[itemID] or
+                            (itemRarity == 0 and itemSellPrice > 0))
                      then
                         if not lowestValue or totalValue < lowestValue then
                             lowestValue = totalValue
@@ -158,12 +171,6 @@ function MagicEraser:RunEraser()
 
     -- Update the icon and tooltip
     self:UpdateMinimapIconAndTooltip()
-
-    -- Refresh the tooltip if visible
-    if GameTooltip:IsVisible() then
-        GameTooltip:Hide() -- Ensure the tooltip resets
-        self:RefreshTooltip()
-    end
 end
 
 -- Function to refresh the tooltip
@@ -175,8 +182,8 @@ function MagicEraser:RefreshTooltip()
     tooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
     tooltip:AddLine(" ", 1, 1, 1)
 
-    if itemInfo then
-        tooltip:AddLine("Click to erase the lowest-value item in your bags.", 1, 1, 1)
+    if (itemInfo ~= nil) then
+        tooltip:AddLine("Click to erase the lowest-value item in your bags.", 0.8, 0.8, 0.8)
         tooltip:AddLine(" ", 1, 1, 1)
         local valueString = self:FormatCurrency(itemInfo.value)
         local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
@@ -205,6 +212,8 @@ function MagicEraser:UpdateMinimapIconAndTooltip()
     if LDBIcon then
         LDBIcon:Refresh("MagicEraser", MagicEraser.DB)
     end
+
+    self:RefreshTooltip()
 end
 
 -- Minimap icon initialization
@@ -243,38 +252,49 @@ MagicEraser.MagicEraserLDB =
 -- Register and initialize the minimap button on load
 LDBIcon:Register("MagicEraser", MagicEraser.MagicEraserLDB, MagicEraser.DB)
 
--- Event handling with throttle
+-- Event handling with throttle and delay
 local frame = CreateFrame("Frame")
 local lastUpdateTime = 0
 local lastDataRequestTime = 0
+local bagUpdateScheduled = false
 
 frame:RegisterEvent("PLAYER_LOGIN")
-frame:RegisterEvent("BAG_UPDATE")
+frame:RegisterEvent("BAG_UPDATE_DELAYED")
+frame:RegisterEvent("LOOT_READY")
+frame:RegisterEvent("LOOT_OPENED")
+
+-- Function to handle BAG_UPDATE_DELAYED event
+local function HandleBagUpdateDelayed()
+    if GetTime() - lastUpdateTime < UPDATE_THROTTLE then
+        return
+    end
+    lastUpdateTime = GetTime()
+
+    if GetTime() - lastDataRequestTime >= DATA_REQUEST_THROTTLE then
+        MagicEraser:UpdateMinimapIconAndTooltip()
+        lastDataRequestTime = GetTime()
+    end
+end
+
 frame:SetScript(
     "OnEvent",
     function(_, event)
-        if event == "BAG_UPDATE" then
-            -- Throttle bag updates
-            if GetTime() - lastUpdateTime < UPDATE_THROTTLE then
-                return
+        if event == "BAG_UPDATE_DELAYED" then
+            if not bagUpdateScheduled then
+                bagUpdateScheduled = true
+                C_Timer.After(
+                    BAG_UPDATE_DELAY,
+                    function()
+                        HandleBagUpdateDelayed()
+                        bagUpdateScheduled = false
+                    end
+                )
             end
-            lastUpdateTime = GetTime()
-
-            -- Throttle item data requests
-            if GetTime() - lastDataRequestTime >= DATA_REQUEST_THROTTLE then
-                MagicEraser:UpdateMinimapIconAndTooltip()
-                lastDataRequestTime = GetTime()
-            end
-        end
-
-        -- Refresh the tooltip if visible
-        if GameTooltip:IsVisible() then
-            GameTooltip:Hide()
-            MagicEraser:RefreshTooltip()
-        end
-
-        -- Initialize the minimap icon on login
-        if event == "PLAYER_LOGIN" then
+        elseif event == "LOOT_READY" or event == "LOOT_OPENED" then
+            HandleBagUpdateDelayed()
+        elseif event == "PLAYER_LOGIN" then
+            -- Ensure it reads the lowest value item on load
+            MagicEraser:UpdateMinimapIconAndTooltip()
             LDBIcon:Show("MagicEraser")
         end
     end
