@@ -3,10 +3,10 @@ local MagicEraser = {}
 
 -- Constants
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
-local UPDATE_THROTTLE = 0.1
-local DATA_REQUEST_THROTTLE = 1 -- Throttle item data requests to once per second
-local BAG_UPDATE_DELAY = 0.1 -- Delay for handling BAG_UPDATE event
-local MAX_CACHE_ITEMS = 100 -- Maximum number of items in the cache
+local UPDATE_THROTTLE = 0.5 -- Reduced throttle to ensure updates are frequent
+local DATA_REQUEST_THROTTLE = 1.0 -- Reduced throttle to ensure updates are frequent
+local BAG_UPDATE_DELAY = 0.5 -- Reduced delay to ensure updates are frequent
+local MAX_CACHE_ITEMS = 100 -- Reduced cache size
 
 -- Load allowed item lists
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
@@ -17,10 +17,10 @@ MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
 
 -- Cache for item information
-MagicEraser.ItemCache = {}
+MagicEraser.ItemCache = setmetatable({}, {__mode = "v"}) -- Use weak table for cache
 
 -- Helper function to format currency values
-function MagicEraser:FormatCurrency(value)
+local function FormatCurrency(value)
     local valueGold = math.floor(value / 10000)
     local valueSilver = math.floor((value % 10000) / 100)
     local valueCopper = value % 100
@@ -40,7 +40,7 @@ function MagicEraser:FormatCurrency(value)
 end
 
 -- Function to check if a quest is completed
-function MagicEraser:IsQuestCompleted(questID)
+local function IsQuestCompleted(questID)
     if C_QuestLog.IsQuestFlaggedCompleted then
         return C_QuestLog.IsQuestFlaggedCompleted(questID)
     end
@@ -48,14 +48,14 @@ function MagicEraser:IsQuestCompleted(questID)
 end
 
 -- Function to get the player's current level
-function MagicEraser:GetPlayerLevel()
+local function GetPlayerLevel()
     return UnitLevel("player")
 end
 
 -- Function to get the next erasable item info
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItemInfo = nil, nil
-    local playerLevel = self:GetPlayerLevel()
+    local playerLevel = GetPlayerLevel()
 
     -- Clear the cache if it exceeds the maximum size
     if #MagicEraser.ItemCache > MAX_CACHE_ITEMS then
@@ -91,7 +91,7 @@ function MagicEraser:GetNextErasableItem()
                     local canDeleteQuestItem = false
                     if self.AllowedDeleteQuestItems[itemID] then
                         for _, questID in ipairs(self.AllowedDeleteQuestItems[itemID]) do
-                            if self:IsQuestCompleted(questID) then
+                            if IsQuestCompleted(questID) then
                                 canDeleteQuestItem = true
                                 break
                             end
@@ -126,10 +126,10 @@ function MagicEraser:GetNextErasableItem()
     return lowestItemInfo
 end
 
--- Function to delete the lowest value item
+-- Function to erase the lowest value item
 function MagicEraser:RunEraser()
     if InCombatLockdown() then
-        print("|cff00B0FFMagic Eraser|r : Cannot delete items while in combat.")
+        print("|cff00B0FFMagic Eraser|r : Cannot erase items while in combat.")
         return
     end
 
@@ -148,7 +148,7 @@ function MagicEraser:RunEraser()
                 stackString
             )
         else
-            local valueString = self:FormatCurrency(itemInfo.value)
+            local valueString = FormatCurrency(itemInfo.value)
             local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
             message =
                 string.format(
@@ -185,7 +185,7 @@ function MagicEraser:RefreshTooltip()
     if (itemInfo ~= nil) then
         tooltip:AddLine("Click to erase the lowest-value item in your bags.", 0.8, 0.8, 0.8)
         tooltip:AddLine(" ", 1, 1, 1)
-        local valueString = self:FormatCurrency(itemInfo.value)
+        local valueString = FormatCurrency(itemInfo.value)
         local stackString = (itemInfo.count > 1) and string.format(" x%d", itemInfo.count) or ""
 
         tooltip:AddDoubleLine(string.format("%s%s", itemInfo.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
@@ -259,7 +259,10 @@ local lastDataRequestTime = 0
 local bagUpdateScheduled = false
 
 frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("BAG_UPDATE")
 frame:RegisterEvent("BAG_UPDATE_DELAYED")
+frame:RegisterEvent("ITEM_PUSH")
+frame:RegisterEvent("ITEM_LOCK_CHANGED")
 frame:RegisterEvent("LOOT_READY")
 frame:RegisterEvent("LOOT_OPENED")
 
@@ -279,7 +282,10 @@ end
 frame:SetScript(
     "OnEvent",
     function(_, event)
-        if event == "BAG_UPDATE_DELAYED" then
+        if
+            event == "BAG_UPDATE" or event == "ITEM_PUSH" or event == "ITEM_LOCK_CHANGED" or
+                event == "BAG_UPDATE_DELAYED"
+         then
             if not bagUpdateScheduled then
                 bagUpdateScheduled = true
                 C_Timer.After(
