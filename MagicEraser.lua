@@ -3,9 +3,9 @@ local MagicEraser = {}
 
 -- Constants
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
-local UPDATE_THROTTLE = 0.5 -- Reduced throttle to ensure updates are frequent
-local DATA_REQUEST_THROTTLE = 1.0 -- Reduced throttle to ensure updates are frequent
-local BAG_UPDATE_DELAY = 0.5 -- Reduced delay to ensure updates are frequent
+local UPDATE_THROTTLE = 0.25 -- Reduced throttle to ensure updates are frequent
+local DATA_REQUEST_THROTTLE = 0.25 -- Reduced throttle to ensure updates are frequent
+local BAG_UPDATE_DELAY = 0.25 -- Reduced delay to ensure updates are frequent
 local MAX_CACHE_ITEMS = 100 -- Reduced cache size
 
 -- Load allowed item lists
@@ -15,6 +15,10 @@ MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
 
 -- Tooltip Frame
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
+
+-- Separate Tooltip Frame for Minimap Icon
+MagicEraser.MinimapTooltipFrame =
+    CreateFrame("GameTooltip", "MagicEraserMinimapTooltip", UIParent, "GameTooltipTemplate")
 
 -- Cache for item information
 MagicEraser.ItemCache = setmetatable({}, {__mode = "v"}) -- Use weak table for cache
@@ -173,9 +177,9 @@ function MagicEraser:RunEraser()
     self:UpdateMinimapIconAndTooltip()
 end
 
--- Function to refresh the tooltip
-function MagicEraser:RefreshTooltip()
-    local tooltip = GameTooltip
+-- Function to refresh the minimap tooltip
+function MagicEraser:RefreshMinimapTooltip()
+    local tooltip = self.MinimapTooltipFrame
     local itemInfo = self:GetNextErasableItem()
 
     tooltip:ClearLines()
@@ -201,6 +205,11 @@ end
 
 -- Function to update the minimap icon and tooltip
 function MagicEraser:UpdateMinimapIconAndTooltip()
+    -- Ensure MagicEraserLDB is initialized
+    if not self.MagicEraserLDB then
+        return
+    end
+
     local itemInfo = self:GetNextErasableItem()
 
     if itemInfo and itemInfo.icon then
@@ -213,7 +222,7 @@ function MagicEraser:UpdateMinimapIconAndTooltip()
         LDBIcon:Refresh("MagicEraser", MagicEraser.DB)
     end
 
-    self:RefreshTooltip()
+    self:RefreshMinimapTooltip()
 end
 
 -- Minimap icon initialization
@@ -236,21 +245,22 @@ MagicEraser.MagicEraserLDB =
         end,
         OnEnter = function(iconFrame)
             if not iconFrame or not iconFrame:IsObjectType("Frame") then
-                print("MagicEraser: Invalid icon frame passed to OnEnter.")
                 return
             end
 
-            GameTooltip:SetOwner(iconFrame, "ANCHOR_BOTTOMLEFT")
-            MagicEraser:RefreshTooltip()
+            MagicEraser.MinimapTooltipFrame:SetOwner(iconFrame, "ANCHOR_BOTTOMLEFT")
+            MagicEraser:RefreshMinimapTooltip()
         end,
         OnLeave = function()
-            GameTooltip:Hide()
+            MagicEraser.MinimapTooltipFrame:Hide()
         end
     }
 )
 
--- Register and initialize the minimap button on load
-LDBIcon:Register("MagicEraser", MagicEraser.MagicEraserLDB, MagicEraser.DB)
+-- Ensure that the LDB object is properly created before registering
+if MagicEraser.MagicEraserLDB then
+    LDBIcon:Register("MagicEraser", MagicEraser.MagicEraserLDB, MagicEraser.DB)
+end
 
 -- Event handling with throttle and delay
 local frame = CreateFrame("Frame")
