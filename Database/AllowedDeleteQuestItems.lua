@@ -1,22 +1,22 @@
 MagicEraser_AllowedDeleteQuestItems = {
-    -- [ItemID] = {QuestID1, QuestID2, ...},        -- Item Name
+	-- [ItemID] = {QuestID1, QuestID2, ...},	-- Item Name
 
 	[1358]	= {138},				-- A Clue to Sander's Treasure
 	[4843]	= {717},				-- Amethyst Runestone
 	[17757]	= {7067},				-- Amulet of Spirits
 	[5338]	= {956},				-- Ancient Moonstone Seal
 	[1361]	= {139},				-- Another Clue to Sander's Treasure
-	[12650]	= {105, 211},			-- Attuned Dampener
+	[12650]	= {105, 211},				-- Attuned Dampener
 	[12301]	= {2969},				-- Bamboo Cage Key
 	[6929]	= {1712},				-- Bath'rah's Parchment
-	[12815]	= {5097, 5098},			-- Beacon Torch
+	[12815]	= {5097, 5098},				-- Beacon Torch
 	[4650]	= {736},				-- Bel'dugur's Note
 	[10575]	= {4023},				-- Black Dragonflight Molt
 	[16786]	= {6569},				-- Black Dragonspawn Eye
 	[11467]	= {4283},				-- Blackrock Medallion
 	[12341]	= {16072},				-- Blackwood Fruit Sample
 	[12343]	= {4763},				-- Blackwood Nut Sample
-	[7668]	= {2201, 2339},			-- Bloodstained Journal
+	[7668]	= {2201, 2339},				-- Bloodstained Journal
 	[13159]	= {5206},				-- Bone Dust
 	[4649]	= {735},				-- Bonegrip's Note
 	[11169]	= {4005},				-- Book of Aquor
@@ -27,8 +27,8 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[5088]	= {894},				-- Control Console Operating Manual
 	[5585]	= {1058},				-- Courser Eye
 	[5877]	= {1148},				-- Cracked Silithid Carapace
-	[7846]	= {2258, 2500},			-- Crag Coyote Fang
-	[11482]	= {4285, 4288, 4287},	-- Crystal Pylon User's Manual
+	[7846]	= {2258, 2500},				-- Crag Coyote Fang
+	[11482]	= {4285, 4288, 4287},			-- Crystal Pylon User's Manual
 	[12738]	= {5059},				-- Dalson Outhouse Key
 	[11468]	= {4286},				-- Dark Iron Fanny Pack
 	[5570]	= {1069},				-- Deepmoss Egg
@@ -44,7 +44,7 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[4529]	= {695},				-- Enchanted Agate
 	[16603]	= {6481},				-- Enchanted Resonite Crystal
 	[20023]	= {8235},				-- Encoded Fragment
-	[11129]	= {3911, 7201},			-- Essence of the Elements
+	[11129]	= {3911, 7201},				-- Essence of the Elements
 	[11108]	= {3844},				-- Faded Photograph
 	[18501]	= {5526},				-- Felvine Shard
 	[1362]	= {140},				-- Final Clue to Sander's Treasure
@@ -70,7 +70,7 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[14542]	= {5762},				-- Kravel's Crate
 	[3898]	= {578},				-- Library Scrip
 	[14544]	= {5727},				-- Lieutenant's Insignia
-	[8047]	= {17, 2202},			-- Magenta Fungus Cap
+	[8047]	= {17, 2202},				-- Magenta Fungus Cap
 	[5694]	= {1079},				-- NG-5 Explosives (Red)
 	[11143]	= {3922},				-- Nugget Slug
 	[12534]	= {4867},				-- Omokk's Head
@@ -80,7 +80,7 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[18708]	= {7636},				-- Petrified Bark
 	[5251]	= {944},				-- Phial of Scrying
 	[13174]	= {5212},				-- Plagued Flesh Sample
-	[15043]	= {5901, 5903},			-- Plagueland Termites
+	[15043]	= {5901, 5903},				-- Plagueland Termites
 	[5938]	= {1258},				-- Pristine Crawler Leg
 	[9309]	= {2928},				-- Robo-mechanical Guts
 	[20613]	= {8421},				-- Rotting Wood
@@ -109,7 +109,7 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[17684]	= {7028},				-- Theradric Crystal Carving
 	[10515]	= {3463},				-- Torch of Retribution
 	[3248]	= {253},				-- Translated Letter from The Embalmer
-	[16991]	= {6624, 6622},			-- Triage Bandage
+	[16991]	= {6624, 6622},				-- Triage Bandage
 	[9523]	= {3042},				-- Troll Temper
 	[12219]	= {4742},				-- Unadorned Seal of Ascension
 	[12323]	= {4743},				-- Unforged Seal of Ascension
@@ -120,14 +120,14 @@ MagicEraser_AllowedDeleteQuestItems = {
 	[9279]	= {2930},				-- White Punch Card
 	[13158]	= {5083},				-- Words of the High Chief
 
-    -- For Testing
-    -- [6948]   = {783, 170, 456, 4641, 757, 364},  -- Hearthstone, Test to Delete Item if Quest is Complete
-    -- [6948]   = {99999999},                       -- Hearthstone, Test to Delete Item if Quest is Incomplete
+	-- For Testing
+	-- [6948]   = {783, 170, 456, 4641, 757, 364},	-- Hearthstone, Test to Delete Item if Quest is Complete
+	-- [6948]   = {99999999},			-- Hearthstone, Test to Delete Item if Quest is Incomplete
 }
 
-    -- Useful Google Search to find safe to delete items
-    -- https://www.google.com/search?q=site%3Awww.wowhead.com%2Fclassic%2Fitem+%22delete%22+OR+%22trash%22+OR+%22junk%22+OR+%22destroy%22+OR+%22safe+to%22+-%22Added+in+SoD%22&hl=en
-    
-    -- TODO
-    -- Check for items like [Owatanka's Tailspike] that are not available to your current race, and erase if found.
-    -- Check for items like [Henrig Lonebrow's Journal] that are lootable even after you completed the non-repeatable quest that they start, and erase if found.
+	-- Useful Google Search to find safe to delete items
+	-- https://www.google.com/search?q=site%3Awww.wowhead.com%2Fclassic%2Fitem+%22delete%22+OR+%22trash%22+OR+%22junk%22+OR+%22destroy%22+OR+%22safe+to%22+-%22Added+in+SoD%22&hl=en
+	
+	-- TODO
+	-- Check for items like [Owatanka's Tailspike] that are not available to your current race, and erase if found.
+	-- Check for items like [Henrig Lonebrow's Journal] that are lootable even after you completed the non-repeatable quest that they start, and erase if found.
