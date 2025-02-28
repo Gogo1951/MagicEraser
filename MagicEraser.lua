@@ -102,11 +102,36 @@ function MagicEraser:GetNextErasableItem()
                         end
                     end
 
+                    -- Function to get the required level of an item
+                    function MagicEraser:GetItemRequiredLevel(itemID)
+                        if not itemID then
+                            return nil
+                        end
+
+                        -- Create a tooltip frame for scanning
+                        local tooltip = MagicEraser.TooltipFrame
+                        tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+                        tooltip:SetHyperlink("item:" .. itemID)
+
+                        -- Scan the tooltip lines for "Requires Level X"
+                        for i = 2, tooltip:NumLines() do
+                            local line = _G["MagicEraserTooltipTextLeft" .. i]:GetText()
+                            if line then
+                                local requiredLevel = line:match("Requires Level (%d+)")
+                                if requiredLevel then
+                                    return tonumber(requiredLevel)
+                                end
+                            end
+                        end
+
+                        return 1 -- Default to level 1 if no required level is found
+                    end
+
                     -- Check if the item is a consumable and if its level is at least 10 levels lower than the player's level
                     local isConsumable = self.AllowedDeleteConsumables[itemID]
-                    local itemUsageLevel = GetItemUsageLevel(itemID)
+                    local itemRequiredLevel = MagicEraser:GetItemRequiredLevel(itemID)
                     local isLowLevelConsumable =
-                        isConsumable and itemUsageLevel and (playerLevel - itemUsageLevel >= 10)
+                        isConsumable and itemRequiredLevel and (playerLevel - itemRequiredLevel >= 10)
 
                     if
                         (canDeleteQuestItem or isLowLevelConsumable or self.AllowedDeleteEquipment[itemID] or
