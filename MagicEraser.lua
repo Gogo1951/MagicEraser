@@ -104,7 +104,9 @@ function MagicEraser:GetNextErasableItem()
 
                     -- Check if the item is a consumable and if its level is at least 10 levels lower than the player's level
                     local isConsumable = self.AllowedDeleteConsumables[itemID]
-                    local isLowLevelConsumable = isConsumable and itemLevel and (playerLevel - itemLevel >= 10)
+                    local itemUsageLevel = GetItemUsageLevel(itemID)
+                    local isLowLevelConsumable =
+                        isConsumable and itemUsageLevel and (playerLevel - itemUsageLevel >= 10)
 
                     if
                         (canDeleteQuestItem or isLowLevelConsumable or self.AllowedDeleteEquipment[itemID] or
