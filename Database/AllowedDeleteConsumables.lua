@@ -170,7 +170,7 @@ MagicEraser_AllowedDeleteConsumables = {
     [4419] = true, -- Scroll of Intellect III
     [4422] = true, -- Scroll of Stamina III
     [4424] = true, -- Scroll of Spirit III
-    [955] = true -- Scroll of Intellect
+    [955] = true, -- Scroll of Intellect
 
     -- Conjured Items
     -- https://www.wowhead.com/classic/items/consumables?filter=9:82:161;1:4:1;0:11400:0#0+1+19
