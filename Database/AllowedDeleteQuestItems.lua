@@ -119,7 +119,8 @@ MagicEraser_AllowedDeleteQuestItems = {
     [12730] = {4867}, -- Warosh's Scroll
     [4823] = {772}, -- Water of the Seers
     [9279] = {2930}, -- White Punch Card
-    [13158] = {5083} -- Words of the High Chief
+    [7273] = {1948}, -- Witherbark Totem Stick
+    [13158] = {5083}, -- Words of the High Chief
 
     -- For Testing
     -- [6948] = {783, 170, 456, 4641, 757, 364}, -- Hearthstone, Test to Delete Item if Quest is Complete
