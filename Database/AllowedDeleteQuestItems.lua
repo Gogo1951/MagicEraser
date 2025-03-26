@@ -1,6 +1,6 @@
 MagicEraser_AllowedDeleteQuestItems = {
     -- [ItemID] = {QuestID1, QuestID2, ...}, -- Item Name
-
+    
     [1358] = {138}, -- A Clue to Sander's Treasure
     [4843] = {717}, -- Amethyst Runestone
     [17757] = {7067}, -- Amulet of Spirits
@@ -58,6 +58,9 @@ MagicEraser_AllowedDeleteQuestItems = {
     [17764] = {7067}, -- Gem of the Fourth Khan
     [17762] = {7067}, -- Gem of the Second Khan
     [17763] = {7067}, -- Gem of the Third Khan
+    [12337] = {4742}, -- Gemstone of Bloodaxe
+    [12335] = {4742}, -- Gemstone of Smolderthorn
+    [12336] = {4742}, -- Gemstone of Spirestone
     [11405] = {4201}, -- Giant Silver Vein
     [9326] = {2945}, -- Grime-Encrusted Ring
     [9460] = {2974}, -- Grimtotem Horn
