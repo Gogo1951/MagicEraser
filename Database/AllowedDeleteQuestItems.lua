@@ -17,6 +17,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [12341] = {16072}, -- Blackwood Fruit Sample
     [12343] = {4763}, -- Blackwood Nut Sample
     [7668] = {2201, 2339}, -- Bloodstained Journal
+    [9282] = {2930}, -- Blue Punch Card
     [13159] = {5206}, -- Bone Dust
     [4649] = {735}, -- Bonegrip's Note
     [11169] = {4005}, -- Book of Aquor
@@ -85,7 +86,9 @@ MagicEraser_AllowedDeleteQuestItems = {
     [5251] = {944}, -- Phial of Scrying
     [13174] = {5212}, -- Plagued Flesh Sample
     [15043] = {5901, 5903}, -- Plagueland Termites
+    [9316] = {2930}, -- Prismatic Punch Card
     [5938] = {1258}, -- Pristine Crawler Leg
+    [9281] = {2930}, -- Red Punch Card
     [9309] = {2928}, -- Robo-mechanical Guts
     [20613] = {8421}, -- Rotting Wood
     [12533] = {4867}, -- Roughshod Pike
@@ -124,6 +127,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [9279] = {2930}, -- White Punch Card
     [7273] = {1948}, -- Witherbark Totem Stick
     [13158] = {5083}, -- Words of the High Chief
+    [9280] = {2930}, -- Yellow Punch Card
 
     -- For Testing
     -- [6948] = {783, 170, 456, 4641, 757, 364}, -- Hearthstone, Test to Delete Item if Quest is Complete
