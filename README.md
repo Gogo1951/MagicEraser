@@ -48,8 +48,6 @@ Please reach out if you would like to be involved with testing!
 
 ## Report Issues & Get Involved
 
-You can find this project on GitHub.
+You can find this project on GitHub // https://github.com/Gogo1951/MagicEraser
 
-https://github.com/Gogo1951/MagicEraser
-
-😈 Gogo1951 on Discord.
+😈 Gogo1951 on Discord // https://discord.gg/eh8hKq992Q
