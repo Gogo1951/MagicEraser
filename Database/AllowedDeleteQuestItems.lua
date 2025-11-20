@@ -68,6 +68,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [9460] = {2974}, -- Grimtotem Horn
     [7442] = {2078}, -- Gyromast's Key
     [9472] = {2994}, -- Hexx's Key
+    [8095] = {2480}, -- Hinott's Oil
     [11269] = {4063}, -- Intact Elemental Core
     [9369] = {2973}, -- Iridescent Sprite Darter Wing
     [12891] = {5245}, -- Jaron's Pick
