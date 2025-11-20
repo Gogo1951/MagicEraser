@@ -177,7 +177,7 @@ end
 
 function MagicEraser:RunEraser()
     if InCombatLockdown() then
-        print("|cff00B0FFMagic Eraser|r : Cannot erase items while in combat.")
+        print("|cff00B0FFMagic Eraser|r // Cannot erase items while in combat.")
         return
     end
 
@@ -189,7 +189,7 @@ function MagicEraser:RunEraser()
         if info.value == 0 then
             print(
                 format(
-                    "|cff00B0FFMagic Eraser|r : Erased %s%s, this item was associated with a quest you have completed.",
+                    "|cff00B0FFMagic Eraser|r // Erased %s%s, this item was associated with a quest you have completed.",
                     info.link,
                     stackStr
                 )
@@ -197,7 +197,7 @@ function MagicEraser:RunEraser()
         else
             print(
                 format(
-                    "|cff00B0FFMagic Eraser|r : Erased %s%s, worth %s.",
+                    "|cff00B0FFMagic Eraser|r // Erased %s%s, worth %s.",
                     info.link,
                     stackStr,
                     FormatCurrency(info.value)
@@ -207,7 +207,7 @@ function MagicEraser:RunEraser()
     else
         if not self.lastNoItemMessageTime or (GetTime() - self.lastNoItemMessageTime >= 10) then
             print(
-                "|cff00B0FFMagic Eraser|r : Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
+                "|cff00B0FFMagic Eraser|r // Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
             )
             self.lastNoItemMessageTime = GetTime()
         end
