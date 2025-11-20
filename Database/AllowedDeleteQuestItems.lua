@@ -51,6 +51,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [11108] = {3844}, -- Faded Photograph
     [18501] = {5526}, -- Felvine Shard
     [1362] = {140}, -- Final Clue to Sander's Treasure
+    [8066] = {2458}, -- Fizzule's Whistle
     [8051] = {2458}, -- Flare Gun
     [6842] = {1701}, -- Furen's Instructions
     [9978] = {3161}, -- Gahz'ridian Detector
