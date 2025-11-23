@@ -12,7 +12,7 @@ local COLOR_SEPARATOR = "|cff2962FF"
 local COLOR_TEXT = "|cffFFFFFF"
 local COLOR_SUCCESS = "|cff33FF33"
 
-local BRAND_PREFIX = COLOR_NAME .. ADDON_NAME .. "|r " .. COLOR_SEPARATOR .. "//|r " .. COLOR_TEXT .. " "
+local BRAND_PREFIX = COLOR_NAME .. ADDON_NAME .. "|r " .. COLOR_SEPARATOR .. "//|r" .. COLOR_TEXT .. " "
 
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
 MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables or {}
