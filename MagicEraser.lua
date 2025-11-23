@@ -6,6 +6,14 @@ local DATA_REQUEST_THROTTLE = 0.25
 local BAG_UPDATE_DELAY = 0.25
 local MAX_CACHE_ITEMS = 100
 
+local ADDON_NAME = "Magic Eraser"
+local COLOR_NAME = "|cff82B1FF"
+local COLOR_SEPARATOR = "|cff2962FF"
+local COLOR_TEXT = "|cffFFFFFF"
+local COLOR_SUCCESS = "|cff33FF33"
+
+local BRAND_PREFIX = COLOR_NAME .. ADDON_NAME .. "|r " .. COLOR_SEPARATOR .. "//|r " .. COLOR_TEXT .. " "
+
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
 MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables or {}
 MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
@@ -18,8 +26,13 @@ local C_Timer_After = C_Timer.After
 local GetTime = GetTime
 local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
+local CursorHasItem = CursorHasItem
+local ClearCursor = ClearCursor
 local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
 local LDBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
+
+local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots
+local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo
 
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
 MagicEraser.MinimapTooltipFrame =
@@ -31,26 +44,40 @@ HiddenScanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 MagicEraser.ItemCache = {}
 MagicEraser.ItemCacheCount = 0
 
-local function CachePut(id, info)
-    if MagicEraser.ItemCache[id] then
-        MagicEraser.ItemCache[id] = info
-        return
+local function Throttled(throttle)
+    local nextTime = 0
+    return function()
+        local now = GetTime()
+        if now >= nextTime then
+            nextTime = now + throttle
+            return true
+        end
     end
+end
+
+local CanRequestItemData = Throttled(DATA_REQUEST_THROTTLE)
+local CanRefreshMinimap = Throttled(DATA_REQUEST_THROTTLE)
+
+local function CachePut(id, info)
+    if not MagicEraser.ItemCache[id] then
+        MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount + 1
+    end
+
     MagicEraser.ItemCache[id] = info
-    MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount + 1
+
     if MagicEraser.ItemCacheCount > MAX_CACHE_ITEMS then
+        local toRemove = floor(MAX_CACHE_ITEMS / 2)
         local removed = 0
+
         for k in pairs(MagicEraser.ItemCache) do
             MagicEraser.ItemCache[k] = nil
             removed = removed + 1
-            if removed >= floor(MAX_CACHE_ITEMS / 2) then
+            if removed >= toRemove then
                 break
             end
         end
-        MagicEraser.ItemCacheCount = 0
-        for _ in pairs(MagicEraser.ItemCache) do
-            MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount + 1
-        end
+
+        MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount - removed
     end
 end
 
@@ -82,45 +109,28 @@ local function GetPlayerLevel()
     return UnitLevel("player")
 end
 
-function MagicEraser:GetItemRequiredLevel(itemID)
-    if not itemID then
-        return nil
-    end
-    HiddenScanTooltip:ClearLines()
-    HiddenScanTooltip:SetHyperlink("item:" .. itemID)
-    for i = 2, HiddenScanTooltip:NumLines() do
-        local line = _G["MagicEraserScanTooltipTextLeft" .. i]
-        local text = line and line:GetText()
-        if text then
-            local n = text:match("Requires Level (%d+)")
-            if n then
-                return tonumber(n)
-            end
-        end
-    end
-    return 1
-end
-
-local pendingDataRefreshAt = 0
-
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItem = nil, nil
     local playerLevel = GetPlayerLevel()
 
+    if not GetContainerNumSlots or not GetContainerItemInfo then
+        return nil
+    end
+
     for bag = 0, 4 do
-        local numSlots = C_Container and C_Container.GetContainerNumSlots and C_Container.GetContainerNumSlots(bag) or 0
+        local numSlots = GetContainerNumSlots(bag) or 0
         for slot = 1, numSlots do
-            local itemInfo = C_Container.GetContainerItemInfo(bag, slot)
+            local itemInfo = GetContainerItemInfo(bag, slot)
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
-                local name, _, rarity, itemLevel, _, _, _, _, _, icon, sellPrice = GetItemInfo(itemInfo.hyperlink)
+                local name, _, rarity, itemLevel, requiredLevel, _, _, _, _, icon, sellPrice =
+                    GetItemInfo(itemInfo.hyperlink)
                 CachePut(itemID, itemInfo)
 
-                if not name or not rarity or not sellPrice or not itemLevel then
+                if not name or not rarity or not sellPrice or not itemLevel or not requiredLevel then
                     if C_Item and C_Item.RequestLoadItemDataByID then
                         C_Item.RequestLoadItemDataByID(itemID)
-                        if GetTime() >= pendingDataRefreshAt then
-                            pendingDataRefreshAt = GetTime() + DATA_REQUEST_THROTTLE
+                        if CanRequestItemData() then
                             C_Timer_After(
                                 DATA_REQUEST_THROTTLE,
                                 function()
@@ -147,9 +157,8 @@ function MagicEraser:GetNextErasableItem()
                     end
 
                     local isConsumable = self.AllowedDeleteConsumables[itemID] or false
-                    local requiredLevel = self:GetItemRequiredLevel(itemID)
-                    local isLowLevelConsumable =
-                        isConsumable and requiredLevel and ((playerLevel - requiredLevel) >= 10)
+                    local requiredLevelValue = requiredLevel or 1
+                    local isLowLevelConsumable = isConsumable and ((playerLevel - requiredLevelValue) >= 10)
 
                     if
                         canDeleteQuestItem or isLowLevelConsumable or self.AllowedDeleteEquipment[itemID] or
@@ -177,37 +186,36 @@ end
 
 function MagicEraser:RunEraser()
     if InCombatLockdown() then
-        print("|cff00B0FFMagic Eraser|r // Cannot erase items while in combat.")
+        print(BRAND_PREFIX .. "Cannot erase items while in combat.|r")
         return
     end
 
     local info = self:GetNextErasableItem()
     if info then
+        if CursorHasItem() then
+            ClearCursor()
+        end
+
         C_Container.PickupContainerItem(info.bag, info.slot)
         DeleteCursorItem()
+
         local stackStr = (info.count > 1) and format(" x%d", info.count) or ""
         if info.value == 0 then
             print(
                 format(
-                    "|cff00B0FFMagic Eraser|r // Erased %s%s, this item was associated with a quest you have completed.",
+                    BRAND_PREFIX .. "Erased %s%s, this item was associated with a quest you have completed.|r",
                     info.link,
                     stackStr
                 )
             )
         else
-            print(
-                format(
-                    "|cff00B0FFMagic Eraser|r // Erased %s%s, worth %s.",
-                    info.link,
-                    stackStr,
-                    FormatCurrency(info.value)
-                )
-            )
+            print(format(BRAND_PREFIX .. "Erased %s%s, worth %s.|r", info.link, stackStr, FormatCurrency(info.value)))
         end
     else
         if not self.lastNoItemMessageTime or (GetTime() - self.lastNoItemMessageTime >= 10) then
             print(
-                "|cff00B0FFMagic Eraser|r // Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space."
+                BRAND_PREFIX ..
+                    "Congratulations, your bags are full of good stuff! You'll have to manually erase something if you need to free up more space.|r"
             )
             self.lastNoItemMessageTime = GetTime()
         end
@@ -220,7 +228,7 @@ function MagicEraser:RefreshMinimapTooltip()
     local tooltip = self.MinimapTooltipFrame
     local info = self:GetNextErasableItem()
     tooltip:ClearLines()
-    tooltip:AddLine("|cff00B0FFMagic Eraser|r", 1, 1, 1)
+    tooltip:AddLine(COLOR_NAME .. ADDON_NAME .. "|r", 1, 1, 1)
     tooltip:AddLine(" ", 1, 1, 1)
 
     if info then
@@ -230,10 +238,10 @@ function MagicEraser:RefreshMinimapTooltip()
         local stackString = (info.count > 1) and format(" x%d", info.count) or ""
         tooltip:AddDoubleLine(format("%s%s", info.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
     else
-        tooltip:AddLine("|cff33FF33Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
+        tooltip:AddLine(COLOR_SUCCESS .. "Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
         tooltip:AddLine(" ")
-        tooltip:AddLine("|cffFFFFFFYou'll have to manually erase something if you|r", 1, 1, 1)
-        tooltip:AddLine("|cffFFFFFFneed to free up more space.|r", 1, 1, 1)
+        tooltip:AddLine(COLOR_TEXT .. "You'll have to manually erase something if you|r", 1, 1, 1)
+        tooltip:AddLine(COLOR_TEXT .. "need to free up more space.|r", 1, 1, 1)
     end
 
     tooltip:Show()
@@ -263,7 +271,7 @@ if LDB then
         "MagicEraser",
         {
             type = "data source",
-            text = "Magic Eraser",
+            text = ADDON_NAME,
             icon = DEFAULT_ICON,
             OnClick = function(_, button)
                 if button == "LeftButton" then
@@ -288,7 +296,7 @@ if LDB then
 end
 
 local frame = CreateFrame("Frame")
-local lastUpdateTime, lastDataRequestTime, bagUpdateScheduled = 0, 0, false
+local lastUpdateTime, bagUpdateScheduled = 0, false
 
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("BAG_UPDATE")
@@ -304,19 +312,23 @@ local function HandleBagUpdateDelayed()
         return
     end
     lastUpdateTime = now
-    if now - lastDataRequestTime >= DATA_REQUEST_THROTTLE then
+
+    if CanRefreshMinimap() then
         MagicEraser:UpdateMinimapIconAndTooltip()
-        lastDataRequestTime = now
     end
 end
+
+local bagUpdateEvents = {
+    BAG_UPDATE = true,
+    ITEM_PUSH = true,
+    ITEM_LOCK_CHANGED = true,
+    BAG_UPDATE_DELAYED = true
+}
 
 frame:SetScript(
     "OnEvent",
     function(_, event)
-        if
-            event == "BAG_UPDATE" or event == "ITEM_PUSH" or event == "ITEM_LOCK_CHANGED" or
-                event == "BAG_UPDATE_DELAYED"
-         then
+        if bagUpdateEvents[event] then
             if not bagUpdateScheduled then
                 bagUpdateScheduled = true
                 C_Timer_After(
