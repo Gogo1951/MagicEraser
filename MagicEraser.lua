@@ -7,12 +7,17 @@ local BAG_UPDATE_DELAY = 0.25
 local MAX_CACHE_ITEMS = 100
 
 local ADDON_NAME = "Magic Eraser"
-local COLOR_NAME = "|cff82B1FF"
-local COLOR_SEPARATOR = "|cff2962FF"
-local COLOR_TEXT = "|cffFFFFFF"
-local COLOR_SUCCESS = "|cff33FF33"
 
-local BRAND_PREFIX = COLOR_NAME .. ADDON_NAME .. "|r " .. COLOR_SEPARATOR .. "//|r" .. COLOR_TEXT .. " "
+local HEX_NAME = "82B1FF"
+local HEX_SEPARATOR = "2962FF"
+local HEX_TEXT = "FFFFFF"
+local HEX_SUCCESS = "33FF33"
+
+local COLOR_PREFIX = "|cff"
+
+local BRAND_PREFIX =
+    COLOR_PREFIX ..
+    HEX_NAME .. ADDON_NAME .. "|r " .. COLOR_PREFIX .. HEX_SEPARATOR .. "//|r" .. COLOR_PREFIX .. HEX_TEXT .. " "
 
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
 MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables or {}
@@ -28,11 +33,13 @@ local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
 local CursorHasItem = CursorHasItem
 local ClearCursor = ClearCursor
+local GetItemInfo = GetItemInfo
 local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
 local LDBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
 
-local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots
-local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo
+local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots or GetContainerNumSlots
+local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo or GetContainerItemInfo
+local GetContainerItemID = C_Container and C_Container.GetContainerItemID or GetContainerItemID
 
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
 MagicEraser.MinimapTooltipFrame =
@@ -62,13 +69,10 @@ local function CachePut(id, info)
     if not MagicEraser.ItemCache[id] then
         MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount + 1
     end
-
     MagicEraser.ItemCache[id] = info
-
     if MagicEraser.ItemCacheCount > MAX_CACHE_ITEMS then
         local toRemove = floor(MAX_CACHE_ITEMS / 2)
         local removed = 0
-
         for k in pairs(MagicEraser.ItemCache) do
             MagicEraser.ItemCache[k] = nil
             removed = removed + 1
@@ -76,7 +80,6 @@ local function CachePut(id, info)
                 break
             end
         end
-
         MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount - removed
     end
 end
@@ -184,6 +187,37 @@ function MagicEraser:GetNextErasableItem()
     return lowestItem
 end
 
+local function CheckForNewDeletableQuestItems()
+    local notifiedItems = {}
+
+    for bag = 0, 4 do
+        local numSlots = GetContainerNumSlots(bag) or 0
+        for slot = 1, numSlots do
+            local itemID = GetContainerItemID(bag, slot)
+            if itemID and MagicEraser.AllowedDeleteQuestItems[itemID] then
+                local isDeletable = false
+                local questMap = MagicEraser.AllowedDeleteQuestItems[itemID]
+                if questMap then
+                    for _, qid in ipairs(questMap) do
+                        if IsQuestCompleted(qid) then
+                            isDeletable = true
+                            break
+                        end
+                    end
+                end
+
+                if isDeletable then
+                    local itemLink = select(2, GetItemInfo(itemID))
+                    if itemLink and not notifiedItems[itemLink] then
+                        print(format(BRAND_PREFIX .. "%s can be safely deleted!|r", itemLink))
+                        notifiedItems[itemLink] = true
+                    end
+                end
+            end
+        end
+    end
+end
+
 function MagicEraser:RunEraser()
     if InCombatLockdown() then
         print(BRAND_PREFIX .. "Cannot erase items while in combat.|r")
@@ -195,7 +229,6 @@ function MagicEraser:RunEraser()
         if CursorHasItem() then
             ClearCursor()
         end
-
         C_Container.PickupContainerItem(info.bag, info.slot)
         DeleteCursorItem()
 
@@ -220,7 +253,6 @@ function MagicEraser:RunEraser()
             self.lastNoItemMessageTime = GetTime()
         end
     end
-
     self:UpdateMinimapIconAndTooltip()
 end
 
@@ -228,7 +260,12 @@ function MagicEraser:RefreshMinimapTooltip()
     local tooltip = self.MinimapTooltipFrame
     local info = self:GetNextErasableItem()
     tooltip:ClearLines()
-    tooltip:AddLine(COLOR_NAME .. ADDON_NAME .. "|r", 1, 1, 1)
+
+    local cName = COLOR_PREFIX .. HEX_NAME
+    local cSuccess = COLOR_PREFIX .. HEX_SUCCESS
+    local cText = COLOR_PREFIX .. HEX_TEXT
+
+    tooltip:AddLine(cName .. ADDON_NAME .. "|r", 1, 1, 1)
     tooltip:AddLine(" ", 1, 1, 1)
 
     if info then
@@ -238,12 +275,11 @@ function MagicEraser:RefreshMinimapTooltip()
         local stackString = (info.count > 1) and format(" x%d", info.count) or ""
         tooltip:AddDoubleLine(format("%s%s", info.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
     else
-        tooltip:AddLine(COLOR_SUCCESS .. "Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
+        tooltip:AddLine(cSuccess .. "Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
         tooltip:AddLine(" ")
-        tooltip:AddLine(COLOR_TEXT .. "You'll have to manually erase something if you|r", 1, 1, 1)
-        tooltip:AddLine(COLOR_TEXT .. "need to free up more space.|r", 1, 1, 1)
+        tooltip:AddLine(cText .. "You'll have to manually erase something if you|r", 1, 1, 1)
+        tooltip:AddLine(cText .. "need to free up more space.|r", 1, 1, 1)
     end
-
     tooltip:Show()
 end
 
@@ -305,13 +341,18 @@ frame:RegisterEvent("ITEM_PUSH")
 frame:RegisterEvent("ITEM_LOCK_CHANGED")
 frame:RegisterEvent("LOOT_READY")
 frame:RegisterEvent("LOOT_OPENED")
+frame:RegisterEvent("QUEST_TURNED_IN")
 
-local function HandleBagUpdateDelayed()
+local function HandleBagUpdateDelayed(fromQuestCompletion)
     local now = GetTime()
     if now - lastUpdateTime < UPDATE_THROTTLE then
         return
     end
     lastUpdateTime = now
+
+    if fromQuestCompletion then
+        CheckForNewDeletableQuestItems()
+    end
 
     if CanRefreshMinimap() then
         MagicEraser:UpdateMinimapIconAndTooltip()
@@ -334,13 +375,24 @@ frame:SetScript(
                 C_Timer_After(
                     BAG_UPDATE_DELAY,
                     function()
-                        HandleBagUpdateDelayed()
+                        HandleBagUpdateDelayed(false)
                         bagUpdateScheduled = false
                     end
                 )
             end
         elseif event == "LOOT_READY" or event == "LOOT_OPENED" then
-            HandleBagUpdateDelayed()
+            HandleBagUpdateDelayed(false)
+        elseif event == "QUEST_TURNED_IN" then
+            if not bagUpdateScheduled then
+                bagUpdateScheduled = true
+                C_Timer_After(
+                    BAG_UPDATE_DELAY,
+                    function()
+                        HandleBagUpdateDelayed(true)
+                        bagUpdateScheduled = false
+                    end
+                )
+            end
         elseif event == "PLAYER_LOGIN" then
             if MagicEraser.UpdateMinimapIconAndTooltip then
                 MagicEraser:UpdateMinimapIconAndTooltip()
