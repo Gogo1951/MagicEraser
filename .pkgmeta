@@ -1,0 +1,11 @@
+# .pkgmeta
+package-as: MagicEraser
+
+ignore:
+    - .git
+    - .gitignore
+    - .idea
+    - .pkgmeta
+    - .vscode
+    - LICENSE
+    - README.md
