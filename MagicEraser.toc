@@ -13,6 +13,6 @@ Database/AllowedDeleteEquipment.lua
 MagicEraser.lua
 
 # Feedback Welcome! (=
-# Open Sesame on CurseForge // https://www.curseforge.com/wow/addons/magic-eraser
-# Open Sesame on GitHub // https://github.com/Gogo1951/Magic-Eraser
-# Open Sesame on Discord // https://discord.gg/eh8hKq992Q
+# Magic Eraser on CurseForge // https://www.curseforge.com/wow/addons/magic-eraser
+# Magic Eraser on GitHub // https://github.com/Gogo1951/Magic-Eraser
+# Magic Eraser on Discord // https://discord.gg/eh8hKq992Q
