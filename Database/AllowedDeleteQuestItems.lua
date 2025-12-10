@@ -136,7 +136,7 @@ MagicEraser_AllowedDeleteQuestItems = {
     [9280] = {2930}, -- Yellow Punch Card
 
     -- For Testing
-    -- [6948] = {783, 170, 456, 4641, 757, 364}, -- Hearthstone, Test to Delete Item if Quest is Complete
+    -- [6948] = {783, 170, 456, 4641, 757, 364, 363}, -- Hearthstone, Test to Delete Item if Quest is Complete
     -- [6948] = {99999999}, -- Hearthstone, Test to Delete Item if Quest is Incomplete
 }
 
