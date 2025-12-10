@@ -1,13 +1,18 @@
 ## Title: Magic Eraser
 ## Notes: A simple add-on that automatically discards the lowest-value item in your bags, including completed quest items, gray items, and vendor-quality white items.
-## Author: Gogo#0298
-## Version: @project-version@
-
-## X-Curse-Project-ID: 1146812
+## Author: Gogo1951
 
 ## Interface: 11508
+## Version: @project-version@
+## X-Curse-Project-ID: 1146812
 
+# Magic Eraser
 Database/AllowedDeleteQuestItems.lua
 Database/AllowedDeleteConsumables.lua
 Database/AllowedDeleteEquipment.lua
 MagicEraser.lua
+
+# Feedback Welcome! (=
+# Open Sesame on CurseForge // https://www.curseforge.com/wow/addons/magic-eraser
+# Open Sesame on GitHub // https://github.com/Gogo1951/Magic-Eraser
+# Open Sesame on Discord // https://discord.gg/eh8hKq992Q
