@@ -1,46 +1,65 @@
 local MagicEraser = {}
 
+----------------------------------------------------------------------
+-- Constants & Configuration
+----------------------------------------------------------------------
+local ADDON_NAME = "Magic Eraser"
 local DEFAULT_ICON = "Interface\\Icons\\inv_misc_bag_07_green"
+
+-- Timing & Throttles
 local UPDATE_THROTTLE = 0.25
 local DATA_REQUEST_THROTTLE = 0.25
 local BAG_UPDATE_DELAY = 0.25
 local MAX_CACHE_ITEMS = 100
 
-local ADDON_NAME = "Magic Eraser"
-
+-- Colors & Branding
 local HEX_NAME = "82B1FF"
 local HEX_SEPARATOR = "2962FF"
 local HEX_TEXT = "FFFFFF"
 local HEX_SUCCESS = "33FF33"
-
 local COLOR_PREFIX = "|cff"
 
 local BRAND_PREFIX =
     COLOR_PREFIX ..
     HEX_NAME .. ADDON_NAME .. "|r " .. COLOR_PREFIX .. HEX_SEPARATOR .. "//|r" .. COLOR_PREFIX .. HEX_TEXT .. " "
 
+-- Saved Variables / External Tables
 MagicEraser.AllowedDeleteQuestItems = MagicEraser_AllowedDeleteQuestItems or {}
 MagicEraser.AllowedDeleteConsumables = MagicEraser_AllowedDeleteConsumables or {}
 MagicEraser.AllowedDeleteEquipment = MagicEraser_AllowedDeleteEquipment or {}
+MagicEraser.DB = MagicEraserDB or {}
+MagicEraser.ItemCache = {}
+MagicEraser.ItemCacheCount = 0
 
+----------------------------------------------------------------------
+-- Local API References (Upvalues)
+----------------------------------------------------------------------
 local _G = _G
 local floor = math.floor
 local insert = table.insert
 local format = string.format
 local C_Timer_After = C_Timer.After
+
 local GetTime = GetTime
 local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
 local CursorHasItem = CursorHasItem
 local ClearCursor = ClearCursor
 local GetItemInfo = GetItemInfo
-local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
-local LDBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
+local DeleteCursorItem = DeleteCursorItem
 
+-- Container API Compatibility
 local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots or GetContainerNumSlots
 local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo or GetContainerItemInfo
 local GetContainerItemID = C_Container and C_Container.GetContainerItemID or GetContainerItemID
 
+-- Libraries
+local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
+local LDBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
+
+----------------------------------------------------------------------
+-- Frame Initialization
+----------------------------------------------------------------------
 MagicEraser.TooltipFrame = CreateFrame("GameTooltip", "MagicEraserTooltip", UIParent, "GameTooltipTemplate")
 MagicEraser.MinimapTooltipFrame =
     CreateFrame("GameTooltip", "MagicEraserMinimapTooltip", UIParent, "GameTooltipTemplate")
@@ -48,9 +67,9 @@ MagicEraser.MinimapTooltipFrame =
 local HiddenScanTooltip = CreateFrame("GameTooltip", "MagicEraserScanTooltip", UIParent, "GameTooltipTemplate")
 HiddenScanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 
-MagicEraser.ItemCache = {}
-MagicEraser.ItemCacheCount = 0
-
+----------------------------------------------------------------------
+-- Utility Functions
+----------------------------------------------------------------------
 local function Throttled(throttle)
     local nextTime = 0
     return function()
@@ -69,10 +88,13 @@ local function CachePut(id, info)
     if not MagicEraser.ItemCache[id] then
         MagicEraser.ItemCacheCount = MagicEraser.ItemCacheCount + 1
     end
+
     MagicEraser.ItemCache[id] = info
+
     if MagicEraser.ItemCacheCount > MAX_CACHE_ITEMS then
         local toRemove = floor(MAX_CACHE_ITEMS / 2)
         local removed = 0
+
         for k in pairs(MagicEraser.ItemCache) do
             MagicEraser.ItemCache[k] = nil
             removed = removed + 1
@@ -89,6 +111,7 @@ local function FormatCurrency(value)
     local s = floor((value % 10000) / 100)
     local c = value % 100
     local parts = {}
+
     if g > 0 then
         insert(parts, format("%d|cffffd700g|r", g))
     end
@@ -98,6 +121,7 @@ local function FormatCurrency(value)
     if c > 0 or #parts == 0 then
         insert(parts, format("%d|cffeda55fc|r", c))
     end
+
     return table.concat(parts, " ")
 end
 
@@ -112,6 +136,9 @@ local function GetPlayerLevel()
     return UnitLevel("player")
 end
 
+----------------------------------------------------------------------
+-- Core Logic
+----------------------------------------------------------------------
 function MagicEraser:GetNextErasableItem()
     local lowestValue, lowestItem = nil, nil
     local playerLevel = GetPlayerLevel()
@@ -124,13 +151,16 @@ function MagicEraser:GetNextErasableItem()
         local numSlots = GetContainerNumSlots(bag) or 0
         for slot = 1, numSlots do
             local itemInfo = GetContainerItemInfo(bag, slot)
+
             if itemInfo and itemInfo.hyperlink then
                 local itemID = itemInfo.itemID
                 local name, _, rarity, itemLevel, requiredLevel, _, _, _, _, icon, sellPrice =
                     GetItemInfo(itemInfo.hyperlink)
+
                 CachePut(itemID, itemInfo)
 
                 if not name or not rarity or not sellPrice or not itemLevel or not requiredLevel then
+                    -- Item data not loaded, request it
                     if C_Item and C_Item.RequestLoadItemDataByID then
                         C_Item.RequestLoadItemDataByID(itemID)
                         if CanRequestItemData() then
@@ -145,10 +175,11 @@ function MagicEraser:GetNextErasableItem()
                         end
                     end
                 else
+                    -- Item data is valid, check logic
                     local count = itemInfo.stackCount or 1
                     local totalValue = (sellPrice or 0) * count
-
                     local canDeleteQuestItem = false
+
                     local questMap = self.AllowedDeleteQuestItems[itemID]
                     if questMap then
                         for _, qid in ipairs(questMap) do
@@ -194,9 +225,11 @@ local function CheckForNewDeletableQuestItems()
         local numSlots = GetContainerNumSlots(bag) or 0
         for slot = 1, numSlots do
             local itemID = GetContainerItemID(bag, slot)
+
             if itemID and MagicEraser.AllowedDeleteQuestItems[itemID] then
                 local isDeletable = false
                 local questMap = MagicEraser.AllowedDeleteQuestItems[itemID]
+
                 if questMap then
                     for _, qid in ipairs(questMap) do
                         if IsQuestCompleted(qid) then
@@ -225,14 +258,17 @@ function MagicEraser:RunEraser()
     end
 
     local info = self:GetNextErasableItem()
+
     if info then
         if CursorHasItem() then
             ClearCursor()
         end
+
         C_Container.PickupContainerItem(info.bag, info.slot)
         DeleteCursorItem()
 
         local stackStr = (info.count > 1) and format(" x%d", info.count) or ""
+
         if info.value == 0 then
             print(
                 format(
@@ -253,15 +289,25 @@ function MagicEraser:RunEraser()
             self.lastNoItemMessageTime = GetTime()
         end
     end
+
     self:UpdateMinimapIconAndTooltip()
 end
 
+----------------------------------------------------------------------
+-- UI & DataBroker
+----------------------------------------------------------------------
 function MagicEraser:RefreshMinimapTooltip()
     local tooltip = self.MinimapTooltipFrame
     local info = self:GetNextErasableItem()
+
     tooltip:ClearLines()
 
-    tooltip:AddLine(ADDON_NAME, 1, 0.82, 0)
+    local version = "@project-version@"
+    if version:find("project-version", 1, true) then
+        version = "Dev"
+    end
+
+    tooltip:AddDoubleLine(ADDON_NAME, "|cFFAAAAAA" .. version .. "|r", 1, 0.82, 0, 1, 1, 1)
     tooltip:AddLine(" ")
 
     if info then
@@ -282,13 +328,10 @@ function MagicEraser:RefreshMinimapTooltip()
         end
 
         valueString = strtrim(valueString)
-
         local stackString = (info.count > 1) and format(" x%d", info.count) or ""
 
         tooltip:AddDoubleLine(format("%s%s", info.link, stackString), valueString)
-
         tooltip:AddLine(" ")
-
         tooltip:AddDoubleLine("|cFF66BBFFLeft-Click|r", "|cFFFFFFFFErase Lowest Value Item|r")
     else
         tooltip:AddLine("|cFF00FF00Congratulations, your bags are full of good stuff!|r", nil, nil, nil, true)
@@ -309,19 +352,20 @@ function MagicEraser:UpdateMinimapIconAndTooltip()
     if not self.MagicEraserLDB then
         return
     end
+
     local info = self:GetNextErasableItem()
     if info and info.icon then
         self.MagicEraserLDB.icon = info.icon
     else
         self.MagicEraserLDB.icon = DEFAULT_ICON
     end
+
     if LDBIcon and LDBIcon.Refresh then
         LDBIcon:Refresh("MagicEraser", MagicEraser.DB)
     end
+
     self:RefreshMinimapTooltip()
 end
-
-MagicEraser.DB = MagicEraserDB or {}
 
 if LDB then
     MagicEraser.MagicEraserLDB =
@@ -348,13 +392,23 @@ if LDB then
             end
         }
     )
+
     if MagicEraser.MagicEraserLDB and LDBIcon and LDBIcon.Register then
         LDBIcon:Register("MagicEraser", MagicEraser.MagicEraserLDB, MagicEraser.DB)
     end
 end
 
+----------------------------------------------------------------------
+-- Event Handling
+----------------------------------------------------------------------
 local frame = CreateFrame("Frame")
 local lastUpdateTime, bagUpdateScheduled = 0, false
+local bagUpdateEvents = {
+    BAG_UPDATE = true,
+    ITEM_PUSH = true,
+    ITEM_LOCK_CHANGED = true,
+    BAG_UPDATE_DELAYED = true
+}
 
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("BAG_UPDATE")
@@ -370,6 +424,7 @@ local function HandleBagUpdateDelayed(fromQuestCompletion)
     if now - lastUpdateTime < UPDATE_THROTTLE then
         return
     end
+
     lastUpdateTime = now
 
     if fromQuestCompletion then
@@ -380,13 +435,6 @@ local function HandleBagUpdateDelayed(fromQuestCompletion)
         MagicEraser:UpdateMinimapIconAndTooltip()
     end
 end
-
-local bagUpdateEvents = {
-    BAG_UPDATE = true,
-    ITEM_PUSH = true,
-    ITEM_LOCK_CHANGED = true,
-    BAG_UPDATE_DELAYED = true
-}
 
 frame:SetScript(
     "OnEvent",
