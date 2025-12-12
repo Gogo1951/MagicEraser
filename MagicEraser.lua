@@ -261,25 +261,47 @@ function MagicEraser:RefreshMinimapTooltip()
     local info = self:GetNextErasableItem()
     tooltip:ClearLines()
 
-    local cName = COLOR_PREFIX .. HEX_NAME
-    local cSuccess = COLOR_PREFIX .. HEX_SUCCESS
-    local cText = COLOR_PREFIX .. HEX_TEXT
-
-    tooltip:AddLine(cName .. ADDON_NAME .. "|r", 1, 1, 1)
-    tooltip:AddLine(" ", 1, 1, 1)
+    tooltip:AddLine(ADDON_NAME, 1, 0.82, 0)
+    tooltip:AddLine(" ")
 
     if info then
-        tooltip:AddLine("Click to erase the lowest-value item in your bags.", 0.8, 0.8, 0.8)
-        tooltip:AddLine(" ", 1, 1, 1)
-        local valueString = FormatCurrency(info.value)
+        local amount = info.value or 0
+        local gold = floor(amount / 10000)
+        local silver = floor((amount % 10000) / 100)
+        local copper = amount % 100
+        local valueString = ""
+
+        if gold > 0 then
+            valueString = valueString .. format("|cFFFFFFFF%d|r|cffffd700g|r ", gold)
+        end
+        if silver > 0 then
+            valueString = valueString .. format("|cFFFFFFFF%d|r|cffc7c7cfs|r ", silver)
+        end
+        if copper > 0 or valueString == "" then
+            valueString = valueString .. format("|cFFFFFFFF%d|r|cffeda55fc|r", copper)
+        end
+
+        valueString = strtrim(valueString)
+
         local stackString = (info.count > 1) and format(" x%d", info.count) or ""
-        tooltip:AddDoubleLine(format("%s%s", info.link, stackString), valueString, 1, 1, 1, 1, 1, 1)
-    else
-        tooltip:AddLine(cSuccess .. "Congratulations, your bags are full of good stuff!|r", 1, 1, 1)
+
+        tooltip:AddDoubleLine(format("%s%s", info.link, stackString), valueString)
+
         tooltip:AddLine(" ")
-        tooltip:AddLine(cText .. "You'll have to manually erase something if you|r", 1, 1, 1)
-        tooltip:AddLine(cText .. "need to free up more space.|r", 1, 1, 1)
+
+        tooltip:AddDoubleLine("|cFF66BBFFLeft-Click|r", "|cFFFFFFFFErase Lowest Value Item|r")
+    else
+        tooltip:AddLine("|cFF00FF00Congratulations, your bags are full of good stuff!|r", nil, nil, nil, true)
+        tooltip:AddLine(" ")
+        tooltip:AddLine(
+            "|cFFaaaaaaYou'll have to manually erase something if you need to free up more space.|r",
+            nil,
+            nil,
+            nil,
+            true
+        )
     end
+
     tooltip:Show()
 end
 
